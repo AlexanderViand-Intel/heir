@@ -31,8 +31,7 @@ int main(int argc, char **argv) {
   registry.insert<lwe::LWEDialect>();
   registry.insert<cggi::CGGIDialect>();
   registry.insert<poly_ext::PolyExtDialect>();
-  // Ignored while polynomial is being upstreamed
-  // registry.insert<::mlir::heir::polynomial::PolynomialDialect>();
+  registry.insert<::mlir::heir::polynomial::PolynomialDialect>();
   registry.insert<secret::SecretDialect>();
   registry.insert<tfhe_rust::TfheRustDialect>();
   registry.insert<tfhe_rust_bool::TfheRustBoolDialect>();
