@@ -4,6 +4,7 @@
 include "lib/Dialect/Polynomial/IR/PolynomialAttributes.td"
 include "lib/Dialect/Polynomial/IR/PolynomialDialect.td"
 include "lib/Dialect/Polynomial/IR/PolynomialTypes.td"
+include "lib/Dialect/RNS/IR/RNSTraits.td"
 include "mlir/Interfaces/InferTypeOpInterface.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
@@ -16,7 +17,7 @@ class Polynomial_Op<string mnemonic, list<Trait> traits = []> :
 }
 
 class Polynomial_BinOp<string mnemonic, list<Trait> traits = []> :
-        Polynomial_Op<mnemonic, !listconcat(traits, [Pure, SameOperandsAndResultType, ElementwiseMappable])> {
+        Polynomial_Op<mnemonic, !listconcat(traits, [Pure, SameOperandsAndResultType, ElementwiseMappable, RNSizable])> {
   let arguments = (ins PolynomialLike:$lhs, PolynomialLike:$rhs);
   let results = (outs PolynomialLike:$output);
   let assemblyFormat = "`(` operands `)` attr-dict `:` qualified(type($output))" ;
