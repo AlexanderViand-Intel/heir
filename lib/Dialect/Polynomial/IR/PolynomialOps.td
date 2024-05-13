@@ -152,7 +152,7 @@ def Polynomial_NTTOp : Polynomial_Op<"ntt", [Pure]> {
     The choice of primitive root is determined by subsequent lowerings.
   }];
 
-  let arguments = (ins PolynomialLike:$input);
+  let arguments = (ins Polynomial:$input);
 
   let results = (outs RankedTensorOf<[AnyInteger]>:$output);
   let assemblyFormat = "$input attr-dict `:` qualified(type($input)) `->` type($output)";
@@ -176,7 +176,7 @@ def Polynomial_INTTOp : Polynomial_Op<"intt", [Pure]> {
 
   let arguments = (ins RankedTensorOf<[AnyInteger]>:$input);
 
-  let results = (outs PolynomialLike:$output);
+  let results = (outs Polynomial:$output);
   let assemblyFormat = "$input attr-dict `:` qualified(type($input)) `->` type($output)";
 
   let hasVerifier = 1;

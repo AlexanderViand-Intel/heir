@@ -130,27 +130,14 @@ static LogicalResult verifyNTTOp(Operation *op, RingAttr ring,
 }
 
 LogicalResult NTTOp::verify() {
-  auto type = getInput().getType();
-  if (auto containerType = mlir::dyn_cast<RankedTensorType>(type)) {
-    type = containerType.getElementType();
-    // TODO: If the input type is a tensor, we need to remove the corresponding
-    // outermost dimension(s) from the tensorType
-  }
-  auto ring = mlir::dyn_cast<PolynomialType>(type).getRing();
-
+  auto ring = getInput().getType().getRing();
   auto tensorType = getOutput().getType();
   return verifyNTTOp(this->getOperation(), ring, tensorType);
 }
 
 LogicalResult INTTOp::verify() {
   auto tensorType = getInput().getType();
-  auto type = getOutput().getType();
-  if (auto containerType = mlir::dyn_cast<RankedTensorType>(type)) {
-    type = containerType.getElementType();
-  }
-  auto ring = mlir::dyn_cast<PolynomialType>(type).getRing();
-  // TODO: If the output type is a tensor, we need to remove the corresponding
-  // outermost dimension(s) from the tensorType (best done in verifyNTTOp?)
+  auto ring = getOutput().getType().getRing();
   return verifyNTTOp(this->getOperation(), ring, tensorType);
 }
 
