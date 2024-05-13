@@ -4,6 +4,7 @@
 
 // NOLINTNEXTLINE(misc-include-cleaner): Required to define RNSOps
 #include "lib/Dialect/RNS/IR/RNSOps.h"
+#include "lib/Dialect/RNS/IR/RNSTraits.h"
 #include "lib/Dialect/RNS/IR/RNSTypeInterfaces.h"
 #include "lib/Dialect/RNS/IR/RNSTypes.h"
 

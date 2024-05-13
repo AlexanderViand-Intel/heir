@@ -15,6 +15,7 @@ cc_library(
     hdrs = [
         "RNSDialect.h",
         "RNSOps.h",
+        "RNSTraits.h",
         "RNSTypeInterfaces.h",
         "RNSTypes.h",
     ],
@@ -75,6 +76,7 @@ td_library(
     srcs = [
         "RNSDialect.td",
         "RNSOps.td",
+        "RNSTraits.td",
         "RNSTypeInterfaces.td",
         "RNSTypes.td",
     ],

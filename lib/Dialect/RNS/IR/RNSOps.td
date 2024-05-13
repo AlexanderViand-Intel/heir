@@ -5,6 +5,8 @@ include "lib/Dialect/RNS/IR/RNSDialect.td"
 include "lib/Dialect/RNS/IR/RNSTypes.td"
 include "mlir/IR/OpBase.td"
 
+include "lib/Dialect/RNS/IR/RNSTraits.td"
+
 class RNS_Op<string mnemonic, list<Trait> traits = []> :
         Op<RNS_Dialect, mnemonic, traits> {
   let cppNamespace = "::mlir::heir::rns";
