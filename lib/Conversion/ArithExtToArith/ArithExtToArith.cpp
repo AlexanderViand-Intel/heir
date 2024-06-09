@@ -31,7 +31,7 @@ struct ConvertBarrettReduce : public OpConversionPattern<BarrettReduceOp> {
 
     // Compute B = 4^{bitWidth} and ratio = floordiv(B / modulus)
     auto input = adaptor.getInput();
-    auto mod = APInt(64, op.getModulus());
+    auto mod = op.getModulus();
     auto bitWidth = (mod - 1).getActiveBits();
     mod = mod.trunc(3 * bitWidth);
     auto B = APInt(3 * bitWidth, 1).shl(2 * bitWidth);

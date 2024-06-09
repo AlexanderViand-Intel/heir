@@ -16,8 +16,9 @@ class ArithExt_Op<string mnemonic, list<Trait> traits = [Pure]> :
 
 class ArithExt_BinaryOp<string mnemonic, list<Trait> traits = []> :
     ArithExt_Op<mnemonic, traits # [SameOperandsAndResultType, Pure, ElementwiseMappable]>,
-    Arguments<(ins SignlessIntegerLike:$lhs, SignlessIntegerLike:$rhs, I64Attr:$modulus)>,
+    Arguments<(ins SignlessIntegerLike:$lhs, SignlessIntegerLike:$rhs, APIntAttr:$modulus)>,
     Results<(outs SignlessIntegerLike:$output)> {
+  let hasVerifier = 1;
   let assemblyFormat = "$lhs `,` $rhs attr-dict `:` qualified(type($output))";
 }
 
@@ -55,7 +56,7 @@ def ArithExt_BarrettReduceOp : ArithExt_Op<"barrett_reduce", [SameOperandsAndRes
 
   let arguments = (ins
     SignlessIntegerLike:$input,
-    I64Attr:$modulus
+    APIntAttr:$modulus
   );
   let results = (outs SignlessIntegerLike:$output);
   let assemblyFormat = "operands attr-dict `:` qualified(type($input))";
