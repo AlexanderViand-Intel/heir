@@ -3,6 +3,7 @@
 #include "lib/Dialect/ArithExt/IR/ArithExtOps.h"
 #include "mlir/include/mlir/IR/ImplicitLocOpBuilder.h"  // from @llvm-project
 #include "mlir/include/mlir/IR/MLIRContext.h"           // from @llvm-project
+#include "mlir/include/mlir/IR/TypeUtilities.h"         // from @llvm-project
 #include "mlir/include/mlir/Transforms/DialectConversion.h"  // from @llvm-project
 #include "mlir/include/mlir/Transforms/GreedyPatternRewriteDriver.h"  // from @llvm-project
 
@@ -12,6 +13,20 @@ namespace arith_ext {
 
 #define GEN_PASS_DEF_ARITHEXTTOARITH
 #include "lib/Conversion/ArithExtToArith/ArithExtToArith.h.inc"
+
+template <typename ValueOrOpResult>
+TypedAttr modulusHelper(IntegerAttr mod, ValueOrOpResult op, bool mul = false) {
+  auto width = getElementTypeOrSelf(op).getIntOrFloatBitWidth();
+  auto modWidth = (mod.getValue() - 1).getActiveBits();
+  width = std::max(width, mul ? 2 * modWidth : modWidth + 1);
+  auto intType = IntegerType::get(op.getContext(), width);
+  auto truncmod = mod.getValue().sextOrTrunc(width);
+  if (auto st = mlir::dyn_cast_or_null<ShapedType>(op.getType())) {
+    auto containerType = st.cloneWith(st.getShape(), intType);
+    return DenseElementsAttr::get(containerType, truncmod);
+  }
+  return IntegerAttr::get(intType, truncmod);
+}
 
 namespace rewrites {
 // In an inner namespace to avoid conflicts with canonicalization patterns
@@ -92,7 +107,8 @@ void ArithExtToArith::runOnOperation() {
   target.addLegalDialect<arith::ArithDialect>();
 
   RewritePatternSet patterns(context);
-  patterns.add<rewrites::ConvertSubIfGE, ConvertBarrettReduce>(context);
+  rewrites::populateWithGenerated(patterns);
+  patterns.add<ConvertBarrettReduce>(context);
 
   if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
     signalPassFailure();
