@@ -76,6 +76,18 @@ def ConvertMulSimple : Pattern<
   (addBenefit 2)
 >;
 
+def ConvertMacSimple : Pattern<
+  (ArithExt_MacOp:$op $x, $y, $acc, $mod),
+  [
+    (Arith_MulIOp:$mul $x, $y, DefOverflow),
+    (Arith_AddIOp:$add $mul, $acc, DefOverflow),
+    (Arith_RemUIOp $add, (Arith_ConstantOp (CastModulusAttributeMul $mod, $x)))
+  ],
+  [(HasEnoughSpaceMul:$op $mod)],
+  [],
+  (addBenefit 2)
+>;
+
 def ConvertAdd : Pattern<
   (ArithExt_AddOp $x, $y, $mod),
   [
@@ -118,6 +130,23 @@ def ConvertMul : Pattern<
       DefOverflow),
     (Arith_TruncIOp:$res
       (Arith_RemUIOp $mul, $newmod))
+  ]
+>;
+
+def ConvertMac : Pattern<
+  (ArithExt_MacOp $x, $y, $acc, $mod),
+  [
+    (Arith_ConstantOp:$newmod (CastModulusAttributeMul $mod, $x)),
+    (Arith_MulIOp:$mul
+      (Arith_ExtUIOp $x,
+        (returnType $newmod)),
+      (Arith_ExtUIOp $y,
+        (returnType $newmod)),
+      DefOverflow),
+    (Arith_AddIOp:$add $mul,
+      (Arith_ExtUIOp:$extacc $acc, (returnType $newmod)), DefOverflow),
+    (Arith_TruncIOp:$res
+      (Arith_RemUIOp $add, $newmod))
   ]
 >;
 

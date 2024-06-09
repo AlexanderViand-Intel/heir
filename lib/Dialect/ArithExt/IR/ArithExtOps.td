@@ -43,6 +43,13 @@ def ArithExt_MulOp : ArithExt_BinaryOp<"mul", [Commutative]> {
   }];
 }
 
+def ArithExt_MacOp : ArithExt_Op<"mac", [SameOperandsAndResultType, Pure, ElementwiseMappable]> {
+  let summary = "modular multiplication-and-accumulation operation";
+  let arguments = (ins SignlessIntegerLike:$lhs, SignlessIntegerLike:$rhs, SignlessIntegerLike:$acc, APIntAttr:$modulus);
+  let results = (outs SignlessIntegerLike:$output);
+  let hasVerifier = 1;
+  let assemblyFormat = "$lhs `,` $rhs `,` $acc attr-dict `:` qualified(type($output))";
+}
 
 def ArithExt_BarrettReduceOp : ArithExt_Op<"barrett_reduce", [SameOperandsAndResultType]> {
   let summary = "Compute the first step of the Barrett reduction.";

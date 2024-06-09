@@ -50,6 +50,8 @@ LogicalResult SubOp::verify() { return verifyArithExtOpMod<SubOp>(*this); }
 
 LogicalResult MulOp::verify() { return verifyArithExtOpMod<MulOp>(*this); }
 
+LogicalResult MacOp::verify() { return verifyArithExtOpMod<MacOp>(*this); }
+
 LogicalResult BarrettReduceOp::verify() {
   auto inputType = getInput().getType();
   unsigned bitWidth;
