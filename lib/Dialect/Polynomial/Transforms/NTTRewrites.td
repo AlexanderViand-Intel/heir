@@ -14,15 +14,7 @@ def GetRingModAttr : NativeCodeCall<
       "(dyn_cast<::mlir::polynomial::PolynomialType>($0.getType())).getRing().getCoefficientModulus()">;
 
 def InputTensorType : NativeCodeCall<
-      "RankedTensorType::get({$0.getPolynomialModulus().getPolynomial().getDegree()},"
-      " IntegerType::get($_builder.getContext(),"
-      "  ($0.getCoefficientModulus().getValue() - 1).getActiveBits()),"
-      " $0)">;
-
-def CreateCModConstant : NativeCodeCall<
-      "$_builder.create<arith::ConstantOp>($0.getLoc(), $2,"
-      " DenseElementsAttr::get($2,"
-      "  $1.getCoefficientModulus().getValue().sextOrTrunc($2.getElementTypeBitWidth())))">;
+      "RankedTensorType::get({$0.getPolynomialModulus().getPolynomial().getDegree()},$0.getCoefficientType(), $0)">;
 
 def HasDegreePowerOfTwo : Constraint<
     CPred<"APInt(64, (dyn_cast<::mlir::polynomial::PolynomialType>($0.getType())).getRing()"
