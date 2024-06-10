@@ -32,6 +32,7 @@ cc_binary(
     }),
     includes = ["include"],
     deps = [
+        "@heir//lib/Conversion/ArithExtToArith",
         "@heir//lib/Conversion/BGVToOpenfhe",
         "@heir//lib/Conversion/BGVToPolynomial",
         "@heir//lib/Conversion/CGGIToTfheRust",
@@ -52,6 +53,7 @@ cc_binary(
         "@heir//lib/Dialect/LWE/IR:Dialect",
         "@heir//lib/Dialect/LWE/Transforms",
         "@heir//lib/Dialect/Openfhe/IR:Dialect",
+        "@heir//lib/Dialect/PISA/IR:Dialect",
         "@heir//lib/Dialect/PolyExt/IR:Dialect",
         "@heir//lib/Dialect/Polynomial/Transforms",
         "@heir//lib/Dialect/Polynomial/Transforms:NTTRewrites",
@@ -146,6 +148,7 @@ cc_binary(
         "@heir//lib/Dialect/Comb/IR:Dialect",
         "@heir//lib/Dialect/LWE/IR:Dialect",
         "@heir//lib/Dialect/Openfhe/IR:Dialect",
+        "@heir//lib/Dialect/PISA/IR:Dialect",
         "@heir//lib/Dialect/PolyExt/IR:Dialect",
         "@heir//lib/Dialect/Secret/IR:Dialect",
         "@heir//lib/Dialect/TensorExt/IR:Dialect",
