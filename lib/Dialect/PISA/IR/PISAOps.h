@@ -4,6 +4,7 @@
 #include "lib/Dialect/PISA/IR/PISADialect.h"
 #include "lib/Dialect/PISA/IR/PISATypes.h"
 #include "mlir/include/mlir/IR/BuiltinOps.h"  // from @llvm-project
+#include "mlir/include/mlir/Interfaces/InferTypeOpInterface.h"  // from @llvm-project
 
 #define GET_OP_CLASSES
 #include "lib/Dialect/PISA/IR/PISAOps.h.inc"
