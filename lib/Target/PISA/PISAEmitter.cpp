@@ -112,7 +112,7 @@ LogicalResult PISAEmitter::printOperation(MuliOp op) {
 }
 
 LogicalResult PISAEmitter::printOperation(MacOp op) {
-  return printPISAOp("pmul", op.getResult(),
+  return printPISAOp("pmac", op.getResult(),
                      {op.getLhs(), op.getRhs(), op.getAcc()}, op.getI());
 }
 
