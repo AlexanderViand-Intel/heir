@@ -3,6 +3,7 @@
 
 #ideal = #polynomial.int_polynomial<1 + x**4>
 #ring = #polynomial.ring<coefficientType=i32, coefficientModulus=17:i32, polynomialModulus=#ideal>
+//#ring = #polynomial.ring<coefficientType=i32, coefficientModuli=dense<[17,18]>:tensor<2xi32>, polynomialModulus=#ideal>
 !poly_ty = !polynomial.polynomial<ring=#ring>
 
 // CHECK: func.func @rewrite_poly_mul(%[[poly0:.*]]: [[POLY_TY:.*]], %[[poly1:.*]]: [[POLY_TY]]) -> [[POLY_TY]] {
@@ -21,6 +22,9 @@ func.func @rewrite_poly_mul(%poly0: !poly_ty, %poly1: !poly_ty) -> !poly_ty {
   %poly = polynomial.mul %poly0, %poly1 : !poly_ty
   return %poly : !poly_ty
 }
+
+//TODO: NTT needs to produce a multi-dim tensor for the polynomial ring with multiple moduli
+//TODO: then we can also have arith_exti work on that and take a dense coefficient thing?
 
 #bad_ideal = #polynomial.int_polynomial<1 + x**6>
 #bad_ring = #polynomial.ring<coefficientType=i32, coefficientModulus=17 : i32, polynomialModulus=#bad_ideal>
