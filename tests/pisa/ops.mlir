@@ -34,7 +34,6 @@ func.func @test_pmac(%arg0 : tensor<8192xi32>, %arg1 : tensor<8192xi32>, %arg2 :
 
 // CHECK-LABEL: test_pmaci
 func.func @test_pmaci(%arg0 : tensor<8192xi32>, %arg1 : tensor<8192xi32>) ->  tensor<8192xi32>  {
-    %c5 = arith.constant 5 : i32
     %0 = pisa.pmaci %arg0, %arg1 {q = 2147483647 : i32, i = 0 : i32, imm = 5 : i32} : tensor<8192xi32>
   return %0 : tensor<8192xi32>
 }
