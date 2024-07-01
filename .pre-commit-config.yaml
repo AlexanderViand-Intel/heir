@@ -38,6 +38,11 @@ repos:
     rev: "v2.2.5"
     hooks:
       - id: codespell
+        exclude: >
+          (?x)^(
+            .*\/pisa\/.*\.mlir|
+            .*\/PISA\/.*\.td
+          )$
 
 # Changes tabs to spaces
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
