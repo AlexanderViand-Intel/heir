@@ -10,26 +10,27 @@
 #params = #lwe.rlwe_params<dimension=2, ring=#ring>
 #params1 = #lwe.rlwe_params<dimension=3, ring=#ring>
 
-!ct1 = !lwe.rlwe_ciphertext<encoding=#encoding, rlwe_params=#params, underlying_type=i3>
+!ct = !lwe.rlwe_ciphertext<encoding=#encoding, rlwe_params=#params, underlying_type=i3>
+!ct1 = !lwe.rlwe_ciphertext<encoding=#encoding, rlwe_params=#params1, underlying_type=i3>
 
 // CHECK: module
 module {
   // CHECK: func.func @test_fn([[X:%.+]]: [[T:tensor<2x!polynomial.*33538049.*]]) -> [[T]] {
-  func.func @test_fn(%x : !ct1) -> !ct1 {
+  func.func @test_fn(%x : !ct) -> !ct {
     // CHECK: return [[X]] : [[T]]
-    return %x : !ct1
+    return %x : !ct
   }
 
 
   // CHECK: func.func @test_bin_ops([[X:%.+]]: [[T:tensor<2x!polynomial.*33538049.*]], [[Y:%.+]]: [[T]]) {
-  func.func @test_bin_ops(%x : !ct1, %y : !ct1) {
+  func.func @test_bin_ops(%x : !ct, %y : !ct) -> (!ct, !ct, !ct, !ct1) {
     // CHECK: polynomial.add [[X]], [[Y]] : [[T]]
-    %add = bgv.add %x, %y  : !ct1
+    %add = bgv.add %x, %y  : !ct
     // CHECK: polynomial.sub [[X]], [[Y]] : [[T]]
-    %sub = bgv.sub %x, %y  : !ct1
+    %sub = bgv.sub %x, %y  : !ct
     // CHECK: [[C:%.+]] = arith.constant -1 : [[I:.+]]
     // CHECK: polynomial.mul_scalar [[X]], [[C]] : [[T]], [[I]]
-    %negate = bgv.negate %x  : !ct1
+    %negate = bgv.negate %x  : !ct
 
     // CHECK: [[I0:%.+]] = arith.constant 0 : index
     // CHECK: [[I1:%.+]] = arith.constant 1 : index
@@ -43,7 +44,7 @@ module {
     // CHECK: [[Z1:%.+]] = polynomial.add [[X0Y1]], [[X1Y0]] : [[P]]
     // CHECK: [[Z2:%.+]] = polynomial.mul [[X1]], [[Y1]] : [[P]]
     // CHECK: [[Z:%.+]] = tensor.from_elements [[Z0]], [[Z1]], [[Z2]] : tensor<3x[[P]]>
-    %mul = bgv.mul %x, %y  : (!ct1, !ct1) -> !lwe.rlwe_ciphertext<encoding=#encoding, rlwe_params=#params1, underlying_type=i3>
-    return
+    %mul = bgv.mul %x, %y  : (!ct, !ct) -> !ct1
+    return %add, %sub, %negate, %mul : !ct, !ct, !ct, !ct1
   }
 }
