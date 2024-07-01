@@ -548,8 +548,9 @@ struct DistributeGeneric
 
     patterns.add<SplitGeneric>(context, opsToDistribute);
     // These patterns are shared with canonicalization
-    patterns.add<FoldSecretSeparators, CollapseSecretlessGeneric,
-                 RemoveUnusedGenericArgs, RemoveNonSecretGenericArgs>(context);
+    // patterns.add<FoldSecretSeparators, CollapseSecretlessGeneric,
+    //              RemoveUnusedGenericArgs,
+    //              RemoveNonSecretGenericArgs>(context);
     (void)applyPatternsAndFoldGreedily(getOperation(), std::move(patterns));
   }
 };
