@@ -77,6 +77,7 @@ cc_binary(
         "@heir//lib/Transforms/ForwardStoreToLoad",
         "@heir//lib/Transforms/FullLoopUnroll",
         "@heir//lib/Transforms/Secretize",
+        "@heir//lib/Transforms/SelectRewrite",
         "@heir//lib/Transforms/StraightLineVectorizer",
         "@heir//lib/Transforms/UnusedMemRef",
         "@llvm-project//llvm:Support",

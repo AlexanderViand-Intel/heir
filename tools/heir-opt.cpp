@@ -47,6 +47,7 @@
 #include "lib/Transforms/ForwardStoreToLoad/ForwardStoreToLoad.h"
 #include "lib/Transforms/FullLoopUnroll/FullLoopUnroll.h"
 #include "lib/Transforms/Secretize/Passes.h"
+#include "lib/Transforms/SelectRewrite/SelectRewrite.h"
 #include "lib/Transforms/StraightLineVectorizer/StraightLineVectorizer.h"
 #include "lib/Transforms/UnusedMemRef/UnusedMemRef.h"
 #include "llvm/include/llvm/Support/CommandLine.h"  // from @llvm-project
@@ -521,6 +522,7 @@ int main(int argc, char **argv) {
   registerSecretizePasses();
   registerFullLoopUnrollPasses();
   registerConvertIfToSelectPasses();
+  registerSelectRewritePasses();
   registerApplyFoldersPasses();
   registerForwardStoreToLoadPasses();
   registerStraightLineVectorizerPasses();
