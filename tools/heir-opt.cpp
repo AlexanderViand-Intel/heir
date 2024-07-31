@@ -447,6 +447,9 @@ void mlirToBgvPipelineBuilder(OpPassManager &pm,
   // Vectorize and optimize rotations
   heirSIMDVectorizerPipelineBuilder(pm);
 
+  // Replace arith.select with add/mul
+  pm.addPass(createSelectRewrite());
+
   // Prepare to lower to BGV
   pm.addPass(secret::createSecretDistributeGeneric());
   pm.addPass(createCanonicalizerPass());
