@@ -17,9 +17,12 @@ class PolynomialToPISATypeConverter : public TypeConverter {
  public:
   PolynomialToPISATypeConverter(MLIRContext *ctx) {
     addConversion([](Type type) { return type; });
-    // FIXME: implement, replace FooType with the type that needs
-    // to be converted or remove this class
-    // addConversion([ctx](FooType type) -> Type { return type; });
+    addConversion([](polynomial::PolynomialType type) -> Type {
+      auto ring = type.getRing();
+      auto degree = ring.getPolynomialModulus().getPolynomial().getDegree();
+      if (degree != 8192) return nullptr;  // Unsupported -> hard error
+      return RankedTensorType::get({degree}, ring.getCoefficientType());
+    });
   }
 };
 
@@ -32,9 +35,11 @@ struct ConvertAddOp : public OpConversionPattern<polynomial::AddOp> {
   LogicalResult matchAndRewrite(
       polynomial::AddOp op, polynomial::AddOpAdaptor adaptor,
       ConversionPatternRewriter &rewriter) const override {
+    auto polynomialType =
+        llvm::cast<polynomial::PolynomialType>(op.getResult().getType());
+    auto q = rewriter.getI32IntegerAttr(
+        polynomialType.getRing().getCoefficientModulus().getInt());
     // TODO: add RNS support
-    auto q =
-        rewriter.getI32IntegerAttr(42);  // FIXME: get q from polynomial type
     auto i = rewriter.getI32IntegerAttr(0);
     rewriter.replaceOpWithNewOp<pisa::AddOp>(op, adaptor.getLhs(),
                                              adaptor.getRhs(), q, i);
