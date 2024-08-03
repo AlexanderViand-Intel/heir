@@ -32,7 +32,7 @@ struct ConvertAddOp : public OpConversionPattern<polynomial::AddOp> {
   LogicalResult matchAndRewrite(
       polynomial::AddOp op, polynomial::AddOpAdaptor adaptor,
       ConversionPatternRewriter &rewriter) const override {
-    // FIXME: does not yet split poly with degree > 8k into multiple pisa ops
+    // TODO: add RNS support
     auto q =
         rewriter.getI32IntegerAttr(42);  // FIXME: get q from polynomial type
     auto i = rewriter.getI32IntegerAttr(0);
@@ -58,11 +58,10 @@ struct PolynomialToPISA : public impl::PolynomialToPISABase<PolynomialToPISA> {
 
     addStructuralConversionPatterns(typeConverter, patterns, target);
 
-    // FIXME: This needs to be another OneToN Conversion, as a single polynomial
-    // type (with degree >8k) will result in multiple "pisa polynomials"
-    // TODO: Actually, how about having a separate pass to do the polynomial
-    // split! That way we can just assume 8k size here and other people can
-    // re-use the splitting pass, too!
+    // TODO: Add a pass to split polynomials with degree > 8k into smaller
+    // "native" polynomials. This needs to be another OneToN Conversion, as a
+    // single polynomial type (with degree >8k) will result in multiple "native"
+    // polynomials
     if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
       return signalPassFailure();
     }
