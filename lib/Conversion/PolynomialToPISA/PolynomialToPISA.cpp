@@ -3,6 +3,7 @@
 #include "lib/Conversion/Utils.h"
 #include "lib/Dialect/ArithExt/IR/ArithExtDialect.h"
 #include "lib/Dialect/PISA/IR/PISADialect.h"
+#include "lib/Dialect/PISA/IR/PISAOps.h"
 #include "mlir/include/mlir/Dialect/Polynomial/IR/PolynomialOps.h"  // from @llvm-project
 #include "mlir/include/mlir/Transforms/DialectConversion.h"  // from @llvm-project
 
@@ -31,8 +32,13 @@ struct ConvertAddOp : public OpConversionPattern<polynomial::AddOp> {
   LogicalResult matchAndRewrite(
       polynomial::AddOp op, polynomial::AddOpAdaptor adaptor,
       ConversionPatternRewriter &rewriter) const override {
-    // FIXME: implement
-    return failure();
+    // FIXME: does not yet split poly with degree > 8k into multiple pisa ops
+    auto q =
+        rewriter.getI32IntegerAttr(42);  // FIXME: get q from polynomial type
+    auto i = rewriter.getI32IntegerAttr(0);
+    rewriter.replaceOpWithNewOp<pisa::AddOp>(op, adaptor.getLhs(),
+                                             adaptor.getRhs(), q, i);
+    return success();
   }
 };
 
@@ -52,6 +58,8 @@ struct PolynomialToPISA : public impl::PolynomialToPISABase<PolynomialToPISA> {
 
     addStructuralConversionPatterns(typeConverter, patterns, target);
 
+    // FIXME: This needs to be another OneToN Conversion, as a single polynomial
+    // type (with degree >8k) will result in multiple "pisa polynomials"
     if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
       return signalPassFailure();
     }
