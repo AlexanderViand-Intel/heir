@@ -60,6 +60,9 @@ struct PolynomialToPISA : public impl::PolynomialToPISABase<PolynomialToPISA> {
 
     // FIXME: This needs to be another OneToN Conversion, as a single polynomial
     // type (with degree >8k) will result in multiple "pisa polynomials"
+    // TODO: Actually, how about having a separate pass to do the polynomial
+    // split! That way we can just assume 8k size here and other people can
+    // re-use the splitting pass, too!
     if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
       return signalPassFailure();
     }
