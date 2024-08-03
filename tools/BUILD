@@ -41,6 +41,7 @@ cc_binary(
         "@heir//lib/Conversion/LWEToPolynomial",
         "@heir//lib/Conversion/MemrefToArith:ExpandCopy",
         "@heir//lib/Conversion/MemrefToArith:MemrefToArithRegistration",
+        "@heir//lib/Conversion/PolynomialToPISA",
         "@heir//lib/Conversion/PolynomialToStandard",
         "@heir//lib/Conversion/SecretToBGV",
         "@heir//lib/Dialect/ArithExt/IR:Dialect",
