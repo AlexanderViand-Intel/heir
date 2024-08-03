@@ -66,7 +66,8 @@ struct PolynomialToPISA : public impl::PolynomialToPISABase<PolynomialToPISA> {
     // TODO: Add a pass to split polynomials with degree > 8k into smaller
     // "native" polynomials. This needs to be another OneToN Conversion, as a
     // single polynomial type (with degree >8k) will result in multiple "native"
-    // polynomials
+    // polynomials. For most ops, the translation is trivial (emit affine.for or
+    // just emit all ops?) but for NTT/iNTT, it's less trivial
     if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
       return signalPassFailure();
     }
