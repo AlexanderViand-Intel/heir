@@ -15,6 +15,7 @@
 #include "lib/Conversion/LinalgToTensorExt/LinalgToTensorExt.h"
 #include "lib/Conversion/MemrefToArith/MemrefToArith.h"
 #include "lib/Conversion/ModArithToArith/ModArithToArith.h"
+#include "lib/Conversion/PolynomialToPISA/PolynomialToPISA.h"
 #include "lib/Conversion/PolynomialToStandard/PolynomialToStandard.h"
 #include "lib/Conversion/SecretToBGV/SecretToBGV.h"
 #include "lib/Conversion/SecretToCKKS/SecretToCKKS.h"
@@ -844,6 +845,7 @@ int main(int argc, char **argv) {
   ::mlir::heir::linalg::registerLinalgToTensorExtPasses();
   ::mlir::heir::polynomial::registerPolynomialToStandardPasses();
   registerCGGIToJaxitePasses();
+  registerPolynomialToPISAPasses();
   registerCGGIToTfheRustPasses();
   registerCGGIToTfheRustBoolPasses();
   registerSecretToBGVPasses();
