@@ -41,7 +41,8 @@ repos:
         exclude: >
           (?x)^(
             .*\/pisa\/.*\.mlir|
-            .*\/PISA\/.*\.td
+            .*\/PISA\/.*\.td|
+            .*\/PISA\/.*\.cpp
           )$
 
 # Changes tabs to spaces

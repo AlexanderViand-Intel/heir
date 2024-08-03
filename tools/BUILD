@@ -153,6 +153,7 @@ cc_binary(
         "@heir//lib/Target/Jaxite:JaxiteEmitter",
         "@heir//lib/Target/Metadata:MetadataEmitter",
         "@heir//lib/Target/OpenFhePke:OpenFheRegistration",
+        "@heir//lib/Target/PISA:PISAEmitter",
         "@heir//lib/Target/TfheRust:TfheRustEmitter",
         "@heir//lib/Target/TfheRustBool:TfheRustBoolEmitter",
         "@heir//lib/Target/Verilog:VerilogEmitter",
