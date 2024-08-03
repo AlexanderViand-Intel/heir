@@ -32,6 +32,7 @@
 #include "lib/Dialect/Openfhe/IR/OpenfheDialect.h"
 #include "lib/Dialect/Openfhe/Transforms/ConfigureCryptoContext.h"
 #include "lib/Dialect/Openfhe/Transforms/Passes.h"
+#include "lib/Dialect/PISA/IR/PISADialect.h"
 #include "lib/Dialect/Polynomial/Transforms/NTTRewrites.h"
 #include "lib/Dialect/Polynomial/Transforms/Passes.h"
 #include "lib/Dialect/RNS/IR/RNSDialect.h"
@@ -709,6 +710,7 @@ int main(int argc, char **argv) {
   registry.insert<lwe::LWEDialect>();
   registry.insert<random::RandomDialect>();
   registry.insert<openfhe::OpenfheDialect>();
+  registry.insert<pisa::PISADialect>();
   registry.insert<rns::RNSDialect>();
   registry.insert<secret::SecretDialect>();
   registry.insert<tensor_ext::TensorExtDialect>();
