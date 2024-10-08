@@ -36,6 +36,7 @@ if (NOT MLIR_FOUND)
 
   # Set Options for LLVM/MLIR here
   set(LLVM_ENABLE_PROJECTS "mlir")
+  set(LLVM_TARGETS_TO_BUILD "Native") # only build for current host
 
   # Actually downloads and configures LLVM/MLIR
   FetchContent_MakeAvailable(MLIR)
