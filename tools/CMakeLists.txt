@@ -1,173 +1,61 @@
-get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
-get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
 
-function(make_heirtx_exec  TARGET_NAME SOURCES)
-        add_llvm_executable(${TARGET_NAME} PARTIAL_SOURCES_INTENDED ${SOURCES})
-        llvm_update_compile_flags(${TARGET_NAME})
-        target_link_libraries(${TARGET_NAME} PRIVATE
-        ${dialect_libs} ${conversion_libs}
+# toy-opt is a simple command line tool that only depends on the MLIR/LLVM  libraries
+add_executable(toy-opt toy-opt.cpp)
+# add MLIR and LLVM include directories
+target_include_directories(toy-opt PRIVATE ${MLIR_INCLUDE_DIRS})
+target_include_directories(toy-opt PRIVATE ${LLVM_INCLUDE_DIRS})
+# link against MLIR and LLVM libraries
 
-        MLIRAutoHogImporter
-        MLIRJaxiteTarget
-        MLIRMetadataEmitter
-        MLIROpenfheTarget
-        MLIRTfheRustTarget
-        MLIRTfheRustBoolTarget
-        MLIRVerilogTarget
-        MLIRSupport
-        MLIRTranslateLib
-        MLIRCGGI
+# set the C++ standard to 17
+target_compile_features(toy-opt PRIVATE cxx_std_17)
 
-        )
-endfunction()
+# print all include directories
+message(STATUS "MLIR include directories: ${MLIR_INCLUDE_DIRS}")
 
-function(make_heirlsp_exec  TARGET_NAME SOURCES)
-        add_llvm_executable(${TARGET_NAME} PARTIAL_SOURCES_INTENDED ${SOURCES})
-        llvm_update_compile_flags(${TARGET_NAME})
-        target_link_libraries(${TARGET_NAME} PRIVATE
-        ${dialect_libs} ${conversion_libs}
+# print all variables that start with LLVM
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    if (_variableName MATCHES "^LLVM")
+        message(STATUS "${_variableName}=${${_variableName}}")
+    endif()
+endforeach()
 
-        MLIRHEIRInterfaces
-        MLIRHEIRUtils
-        MLIRLspServerLib
-        MLIROptLib
-        MLIRSCFDialect
-        MLIRMemRefDialect
-        MLIRComb
-        MLIRCGGI
-        MLIRBGV
-        MLIRLWE
-        MLIRSecret
-        MLIRModArithDialect
-        MLIRTensorExt
-        MLIRTensorDialect
-        MLIRHEIRAnalysisROT
-        MLIRAffineDialect
-        MLIRJaxiteTarget
-        MLIRMetadataEmitter
-        MLIRSupport
-        MLIRTranslateLib
-        MLIRVerilogTarget
-        MLIROptLib MLIROpenfhe MLIRLWE MLIROpenfheTarget MLIRSecret MLIRVerilogTarget MLIRHEIRTargetUtils
-        MLIRTfheRust MLIRTfheRustBool MLIRHEIRAnalysisSVN
-        MLIRTfheRustTarget
-        MLIRTfheRustBoolTarget
-        MLIRHEIRTargetUtils
-        )
-endfunction()
+# Print all variables that start with MLIR from all scopes
 
-function(make_heiropt_exec  TARGET_NAME SOURCES)
-        add_llvm_executable(${TARGET_NAME} PARTIAL_SOURCES_INTENDED ${SOURCES})
-        llvm_update_compile_flags(${TARGET_NAME})
-        target_link_libraries(${TARGET_NAME} PRIVATE
-        ${dialect_libs} ${conversion_libs}
+# Global scope
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    if (_variableName MATCHES "^MLIR")
+        message(STATUS "Global: ${_variableName}=${${_variableName}}")
+    endif()
+endforeach()
 
-        MLIRJaxiteTarget
-        MLIRModArithDialect
-        MLIRSupport
-        MLIRTranslateLib
-        MLIRVerilogTarget
-        MLIROpenfhe
-        MLIRLWE
-        MLIROpenfheTarget
-        MLIRSecret
-        MLIRVerilogTarget
-        MLIRHEIRTargetUtils
-        MLIRTfheRust
-        MLIRTfheRustBool
-        MLIRHEIRAnalysisSVN
-        MLIRTfheRustTarget
-        MLIRTfheRustBoolTarget
-        MLIRHEIRTargetUtils
+# Directory scope
+get_directory_property(_dirVars DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} VARIABLES)
+foreach (_variableName ${_dirVars})
+    if (_variableName MATCHES "^MLIR")
+        message(STATUS "Directory: ${_variableName}=${${_variableName}}")
+    endif()
+endforeach()
 
-        MLIRBGV
-        MLIRCGGI
-        MLIRComb
-        MLIRJaxite
-        MLIRLWE
-        MLIROpenfhe
-        MLIRRNS
-        MLIRSecret
-        MLIRTensorExt
-        MLIRTfheRust
-        MLIRTfheRustBool
+# Target scope
+get_property(_targets GLOBAL PROPERTY TARGETS)
+foreach (_target ${_targets})
+    get_target_property(_targetVars ${_target} VARIABLES)
+    foreach (_variableName ${_targetVars})
+        if (_variableName MATCHES "^MLIR")
+            message(STATUS "Target ${_target}: ${_variableName}=${${_variableName}}")
+        endif()
+    endforeach()
+endforeach()
 
-        MLIRSupport
-        MLIRAffineDialect
-        MLIRAffineToStandard
-        MLIRAffineTransforms
-        MLIRFuncAllExtensions
-        MLIRFuncDialect
-        MLIRArithDialect
-        MLIRArithToLLVM
-        MLIRArithTransforms
-        MLIRBufferizationToMemRef
-        MLIRBufferizationTransforms
-        MLIRControlFlowToLLVM
-        MLIRConvertToLLVMPass
-        MLIRFuncDialect
-        MLIRFuncToLLVM
-        MLIRFuncTransforms
-        MLIRIndexToLLVM
-        MLIRLLVMDialect
-        MLIRLinalgTransforms
-        MLIRMemRefDialect
-        MLIRMemrefToArithMemrefGlobalReplace
-        MLIRMemRefToLLVM
-        MLIRMemRefTransforms
-        MLIROptLib
-        MLIRPass
-        MLIRPolynomialDialect
-        MLIRReconcileUnrealizedCasts
-        MLIRSCFDialect
-        MLIRSCFToControlFlow
-        MLIRTensorToLinalg
-        MLIRTensorTransforms
-        MLIRTosaDialect
-        MLIRTosaToArith
-        MLIRTosaToLinalg
-        MLIRTosaToTensor
-        MLIRTransforms
-        MLIRHeirConvertIfToSelect
-        MLIRHeiElementwiseToAffine
-        MLIRHeirForwardStoreToLoad
-        MLIRHeirFullLoopUnroll
-        MLIRHeirLinalgCanonicalizations
-        MLIRHeirSecretize
-        MLIRHeirStraightLineVectorizer
-
-        MLIRPolynomialTransforms
-        MLIRHeirPolynomialNTTRewrites
-
-        MLIRMemrefToArithUtils
-        MLIRMemrefToArithRegistration
-        MLIRMemrefToArithUnrollAndForward
-        MLIRMemrefToArithExtractLoopBody
-        MLIRMemrefToArithExpandCopy
-        MLIRMemrefToArithMemrefGlobalReplace
-        MLIRBGVOpenfheTransforms
-        MLIRCKKSOpenfheTransforms
-        MLIRRlweToOpenfheTransforms
-        MLIRLWEToPolynomial
-        MLIRHeirConvertSecretForToStaticFor
-        MLIRHeirConvertSecretWhileToStaticFor
-
-        MLIRRandom
-        MLIRCGGIToJaxiteTransforms
-        MLIRCGGIToTfheRustTransforms
-        MLIRCKKS
-)
-add_dependencies(${TARGET_NAME} MLIRPolynomialPassesIncGen)
-add_dependencies(${TARGET_NAME} MLIRPolynomialNTTRewritePassesIncGen)
-add_dependencies(${TARGET_NAME} MLIRTosaToSecretArith)
-add_dependencies(${TARGET_NAME} MLIRLinalgToTensorExt)
-endfunction()
-
-message(STATUS "Configuring heir-translate")
-make_heirtx_exec(heir-translate heir-translate.cpp)
-
-message(STATUS "Configuring heir-lsp")
-make_heirlsp_exec(heir-lsp heir-lsp.cpp)
-
-message(STATUS "Configuring heir-opt")
-make_heiropt_exec(heir-opt heir-opt.cpp)
+# Source file scope
+get_property(_sourceFiles DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY SOURCE_FILES)
+foreach (_sourceFile ${_sourceFiles})
+    get_source_file_property(_sourceVars ${_sourceFile} VARIABLES)
+    foreach (_variableName ${_sourceVars})
+        if (_variableName MATCHES "^MLIR")
+            message(STATUS "Source file ${_sourceFile}: ${_variableName}=${${_variableName}}")
+        endif()
+    endforeach()
+endforeach()
