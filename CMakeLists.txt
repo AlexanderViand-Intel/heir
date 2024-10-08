@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 
-if(POLICY CMP0116)
-  cmake_policy(SET CMP0116 OLD)
-endif()
-
 project(HEIR LANGUAGES CXX C)
+
+# Custom CMake Setup (if required)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
@@ -13,6 +12,7 @@ if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+# If MLIR_DIR is set
 find_package(MLIR CONFIG)
 if (NOT MLIR_FOUND)
   message(STATUS "MLIR not found. Building MLIR from source.")
@@ -61,8 +61,6 @@ else()
    add_compile_options(-DHEIR_NO_YOSYS=1)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
-set(HEIRLIBDIR ${CMAKE_CURRENT_SOURCE_DIR})
 # add_subdirectory(lib)
 # add_subdirectory(tools)
 # add_subdirectory(tests)
