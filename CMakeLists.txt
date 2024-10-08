@@ -5,7 +5,8 @@ project(HEIR LANGUAGES CXX C)
 # Custom CMake Setup (if required)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
+# TODO: set this on target level, not project!
+# set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
 # if no build type was specified, default to release
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
