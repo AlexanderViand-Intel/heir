@@ -8,6 +8,11 @@ project(HEIR LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
+# if no build type was specified, default to release
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 # Extract the LLVM commit ID from bazel/import_llvm.bzl
 file(READ "${CMAKE_SOURCE_DIR}/bazel/import_llvm.bzl" BAZEL_FILE_CONTENT)
 string(REGEX MATCH "LLVM_COMMIT = \"([a-f0-9]+)\"" _ ${BAZEL_FILE_CONTENT})
