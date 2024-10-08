@@ -45,6 +45,9 @@ if (NOT MLIR_FOUND)
 
   # Download LLVM/MLIR only
   FetchContent_MakeAvailable(llvm-project)
+
+  # TODO: Similar to IREE, manually set up the variables usually set by find_package(MLIR)
+  # See https://github.com/iree-org/iree/blob/main/build_tools/cmake/iree_llvm.cmake
 endif()
 
 message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
