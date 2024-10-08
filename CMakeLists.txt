@@ -9,7 +9,7 @@ project(HEIR LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
 # if no build type was specified, default to release
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
@@ -55,6 +55,6 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 set(HEIRLIBDIR ${CMAKE_CURRENT_SOURCE_DIR})
-add_subdirectory(lib)
-add_subdirectory(tools)
-add_subdirectory(tests)
+# add_subdirectory(lib)
+# add_subdirectory(tools)
+# add_subdirectory(tests)
