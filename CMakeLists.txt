@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.18)
 
 if(POLICY CMP0116)
   cmake_policy(SET CMP0116 OLD)
@@ -27,19 +27,24 @@ if (NOT MLIR_FOUND)
   include(FetchContent)
   Set(FETCHCONTENT_QUIET FALSE)
   FetchContent_Declare(
-      MLIR
+      llvm-project
       GIT_REPOSITORY https://github.com/llvm/llvm-project.git
       GIT_TAG ${LLVM_COMMIT_ID}
       GIT_PROGRESS TRUE
-      SOURCE_SUBDIR llvm # location of main CMakeLists.txt
+      # We do not want FetchContent to actually add this as a subdirectory
+      # so we provide a non-existing CMakeLists.txt location, as FetchContent
+      # only calls add_subdirectory if it finds a CMakeLists.txt file.
+      # Since llvm-project does not currently have a top-level CMakeLists.txt
+      # we could also omit this entirely, but that might break if one is added in the future
+      SOURCE_SUBDIR NonExistentSubdirToPreventAddSubDirectoryCall
   )
 
   # Set Options for LLVM/MLIR here
   set(LLVM_ENABLE_PROJECTS "mlir")
   set(LLVM_TARGETS_TO_BUILD "Native") # only build for current host
 
-  # Actually downloads and configures LLVM/MLIR
-  FetchContent_MakeAvailable(MLIR)
+  # Download LLVM/MLIR only
+  FetchContent_MakeAvailable(llvm-project)
 endif()
 
 message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
