@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13.4)
+cmake_minimum_required(VERSION 3.14)
 
 if(POLICY CMP0116)
   cmake_policy(SET CMP0116 OLD)
@@ -8,7 +8,23 @@ project(HEIR LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
-find_package(MLIR REQUIRED CONFIG)
+# Extract the LLVM commit ID from bazel/import_llvm.bzl
+file(READ "${CMAKE_SOURCE_DIR}/bazel/import_llvm.bzl" BAZEL_FILE_CONTENT)
+string(REGEX MATCH "LLVM_COMMIT = \"([a-f0-9]+)\"" _ ${BAZEL_FILE_CONTENT})
+set(LLVM_COMMIT_ID ${CMAKE_MATCH_1})
+message(STATUS "LLVM commit ID: ${LLVM_COMMIT_ID}")
+
+# Fetch LLVM using FetchContent (with output, as it can be slow)
+include(FetchContent)
+Set(FETCHCONTENT_QUIET FALSE)
+FetchContent_Declare(
+    llvm-project
+    GIT_REPOSITORY https://github.com/llvm/llvm-project.git
+    GIT_TAG ${LLVM_COMMIT_ID}
+    GIT_PROGRESS TRUE
+)
+
+FetchContent_MakeAvailable(llvm-project)
 
 message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
