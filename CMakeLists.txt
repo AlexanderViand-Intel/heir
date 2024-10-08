@@ -54,6 +54,39 @@ endif()
 message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
+# HEIR prefixes all MLIR and LLVM includes with their full path, i.e.,
+# "mlir/include/<normal include path>" and "llvm/include/<normal include path>"
+# because of a Google internal file system requirement, so we need to add these.
+# Note that we might still need the original include paths for MLIR/LLVM headers.
+foreach(inc_dir IN LISTS MLIR_INCLUDE_DIRS)
+  if("${inc_dir}" MATCHES "mlir[/\\]include$")
+    get_filename_component(parent_dir "${inc_dir}" DIRECTORY)
+    get_filename_component(grandparent_dir "${parent_dir}" DIRECTORY)
+    list(APPEND MLIR_INCLUDE_DIRS "${grandparent_dir}")
+  endif()
+endforeach()
+
+# same for LLVM
+foreach(inc_dir IN LISTS LLVM_INCLUDE_DIRS)
+  if("${inc_dir}" MATCHES "llvm[/\\]include$")
+    get_filename_component(parent_dir "${inc_dir}" DIRECTORY)
+    get_filename_component(grandparent_dir "${parent_dir}" DIRECTORY)
+    list(APPEND LLVM_INCLUDE_DIRS "${grandparent_dir}")
+  endif()
+endforeach()
+
+# print all include directories
+message(STATUS "MLIR include dirs: ${MLIR_INCLUDE_DIRS}")
+message(STATUS "LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
+
+# get convenience lists defined by MLIRConfig.cmake
+get_property(MLIR_DIALECT_LIBS GLOBAL PROPERTY MLIR_DIALECT_LIBS)
+get_property(MLIR_CONVERSION_LIBS GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
+get_property(MLIR_EXTENSION_LIBS GLOBAL PROPERTY MLIR_EXTENSION_LIBS)
+get_property(MLIR_TRANSFORMS_LIBS GLOBAL PROPERTY MLIR_TRANSFORMS_LIBS)
+get_property(MLIR_TRANSLATION_LIBS GLOBAL PROPERTY MLIR_TRANSLATION_LIBS)
+get_property(MLIR_UPSTREAM_CAPI_LIBS GLOBAL PROPERTY MLIR_UPSTREAM_CAPI_LIBS)
+
 option(ENABLE_YOSYS "Enable YOSYS for yosys-optimizer pass (optional)" FALSE)
 
 if(ENABLE_YOSYS)
