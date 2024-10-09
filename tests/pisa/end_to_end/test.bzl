@@ -38,13 +38,13 @@ def pisa_end_to_end_test(name, mlir_src, test_src, generated_lib_header, heir_op
     heir_translate(
         name = cc_codegen_target,
         src = generated_heir_opt_name,
-        pass_flag = "--emit-openfhe-pke",
+        pass_flags = ["--emit-openfhe-pke"],
         generated_filename = generated_cc_filename,
     )
     heir_translate(
         name = h_codegen_target,
         src = generated_heir_opt_name,
-        pass_flag = "--emit-openfhe-pke-header",
+        pass_flags = ["--emit-openfhe-pke-header"],
         generated_filename = generated_lib_header,
     )
     native.cc_library(

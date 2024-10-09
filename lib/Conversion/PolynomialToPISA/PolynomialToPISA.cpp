@@ -1,7 +1,7 @@
 #include "lib/Conversion/PolynomialToPISA/PolynomialToPISA.h"
 
 #include "lib/Conversion/Utils.h"
-#include "lib/Dialect/ArithExt/IR/ArithExtDialect.h"
+#include "lib/Dialect/ModArith/IR/ModArithDialect.h"
 #include "lib/Dialect/PISA/IR/PISADialect.h"
 #include "lib/Dialect/PISA/IR/PISAOps.h"
 #include "mlir/include/mlir/Dialect/Polynomial/IR/PolynomialOps.h"  // from @llvm-project
@@ -57,7 +57,7 @@ struct PolynomialToPISA : public impl::PolynomialToPISABase<PolynomialToPISA> {
     ConversionTarget target(*context);
     target.addLegalDialect<pisa::PISADialect>();
     target.addIllegalDialect<polynomial::PolynomialDialect>();
-    target.addIllegalDialect<arith_ext::ArithExtDialect>();
+    target.addIllegalDialect<mod_arith::ModArithDialect>();
 
     patterns.add<ConvertAddOp>(typeConverter, context);
 

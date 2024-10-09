@@ -12,7 +12,7 @@ cc_library(
     deps = [
         ":pass_inc_gen",
         "@heir//lib/Conversion:Utils",
-        "@heir//lib/Dialect/ArithExt/IR:Dialect",
+        "@heir//lib/Dialect/ModArith/IR:Dialect",
         "@heir//lib/Dialect/PISA/IR:Dialect",
         "@llvm-project//mlir:IR",
         "@llvm-project//mlir:Pass",
