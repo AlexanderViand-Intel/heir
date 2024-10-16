@@ -8,6 +8,10 @@ add_mlir_library(HEIRConversionUtils
     # HEIRTensorExtCanonicalizationIncGen
 
     LINK_LIBS PUBLIC
+    HEIRLWE
+    HEIRSecret
+    HEIRTensorExt
+
     MLIRIR
     MLIRInferTypeOpInterface
     MLIRArithDialect

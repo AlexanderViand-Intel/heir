@@ -51,4 +51,6 @@ add_mlir_library(HEIRAutoHogImporter
     MLIRTranslateLib
 )
 target_include_directories(HEIRAutoHogImporter PUBLIC ${RAPIDJSON_INCLUDE_DIR})
+
+# Add the library to the convenience target for all Source libraries
 target_link_libraries(HEIRSource INTERFACE  HEIRAutoHogImporter)

@@ -5,6 +5,10 @@ add_mlir_conversion_library(HEIRCGGIToJaxite
 
     DEPENDS
     HEIRCGGIToJaxiteIncGen
+    HEIRCGGI
+    HEIRJaxite
+    HEIRLWE
+    HEIRConversionUtils
 
     LINK_LIBS PUBLIC
     HEIRCGGI
