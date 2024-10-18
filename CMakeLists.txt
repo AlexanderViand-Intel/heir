@@ -67,8 +67,8 @@ endforeach()
 # The tablegen generated files (*.h.inc, *.cpp.inc) are only available in the build directory
 include_directories(${LLVM_INCLUDE_DIRS})  # LLVM headers (all)
 include_directories(${MLIR_INCLUDE_DIRS})  # MLIR headers (all)
-include_directories(${PROJECT_SOURCE_DIR}) # HEIR headers (committed)
-include_directories(${PROJECT_BINARY_DIR}) # HEIR headers (generated)
+# include_directories(${PROJECT_SOURCE_DIR}) # HEIR headers (committed)
+# include_directories(${PROJECT_BINARY_DIR}) # HEIR headers (generated)
 
 # get convenience lists defined by MLIRConfig.cmake
 get_property(MLIR_DIALECT_LIBS GLOBAL PROPERTY MLIR_DIALECT_LIBS)
