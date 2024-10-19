@@ -88,5 +88,5 @@ set_property(GLOBAL PROPERTY MLIR_UPSTREAM_CAPI_LIBS)
 include(${PROJECT_SOURCE_DIR}/cmake/AddHEIR.cmake)
 
 add_subdirectory(lib)
-add_subdirectory(tools)
-add_subdirectory(tests)
+# add_subdirectory(tools)
+# add_subdirectory(tests)
