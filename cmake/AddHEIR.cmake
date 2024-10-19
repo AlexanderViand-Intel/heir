@@ -97,7 +97,6 @@ function(add_AUTOMAGIC_heir_dialect dialect_name dialect_namespace)
   heir_dialect_tablegen(${dialect_name} Attributes attrdef)
   #Enums
   heir_dialect_tablegen(${dialect_name} Enums enum)
-  #TODO (build): fix the dialect that puts Enums in the Attributes.td file!
 
 
 
