@@ -2,6 +2,7 @@
 #define LIB_DIALECT_LWE_IR_NEWLWEATTRIBUTES_TD_
 
 include "lib/Dialect/LWE/IR/LWEDialect.td"
+include "lib/Dialect/LWE/IR/NewLWEEnums.td"
 
 include "mlir/IR/EnumAttr.td"
 include "mlir/IR/AttrTypeBase.td"
@@ -298,14 +299,6 @@ def LWE_KeyAttr : AttrDef<LWE_Dialect, "Key"> {
   );
 
   let assemblyFormat = "`<` struct(params) `>`";
-}
-
-def LWE_EncryptionTypeEnum : I32EnumAttr<"LweEncryptionType", "An enum attribute representing an encryption method", [
-  I32EnumAttrCase<"msb", 0>,
-  I32EnumAttrCase<"lsb", 1>,
-  I32EnumAttrCase<"mix", 2>
-]> {
-    let cppNamespace = "::mlir::heir::lwe";
 }
 
 def LWE_CiphertextSpaceAttr : AttrDef<LWE_Dialect, "CiphertextSpace"> {
