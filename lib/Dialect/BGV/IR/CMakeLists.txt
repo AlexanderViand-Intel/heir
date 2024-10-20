@@ -1,10 +1,5 @@
-add_heir_dialect(BGV bgv)
-
-add_mlir_dialect_library(HEIRBGV
+add_heir_dialect(BGV bgv
     BGVDialect.cpp
-
-    DEPENDS
-    HEIRBGVIncGen
 
     LINK_LIBS PUBLIC
     HEIR__Dialect__LWE

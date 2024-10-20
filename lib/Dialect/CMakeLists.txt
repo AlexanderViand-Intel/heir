@@ -1,16 +1,16 @@
-# set(LLVM_TARGET_DEFINITIONS HEIRInterfaces.td)
-# mlir_tablegen(HEIRInterfaces.h.inc  --gen-op-interface-decls  -name heir)
-# mlir_tablegen(HEIRInterfaces.cpp.inc  --gen-op-interface-defs -name heir)
-# add_public_tablegen_target(HEIRInterfacesOpsIncGen)
+set(LLVM_TARGET_DEFINITIONS HEIRInterfaces.td)
+mlir_tablegen(HEIRInterfaces.h.inc  --gen-op-interface-decls  -name heir)
+mlir_tablegen(HEIRInterfaces.cpp.inc  --gen-op-interface-defs -name heir)
+add_public_tablegen_target(HEIRInterfacesOpsIncGen)
 
-# add_mlir_dialect_library(HEIRInterfaces
-#     HEIRInterfaces.cpp
+add_mlir_dialect_library(HEIRInterfaces
+    HEIRInterfaces.cpp
 
-#     DEPENDS
-#     HEIRInterfacesOpsIncGen
-# )
+    DEPENDS
+    HEIRInterfacesOpsIncGen
+)
 
-# add_subdirectory(BGV)
+add_subdirectory(BGV)
 # add_subdirectory(CGGI)
 # add_subdirectory(CKKS)
 # add_subdirectory(Comb)
