@@ -100,6 +100,9 @@ function(add_heir_dialect dialect_name dialect_namespace)
   # Includes are the current binary directory and the include directories of all dependencies
   set(dialect_include_dirs  ${binary_dir_prefix})
   foreach(dep ${ARG_LINK_LIBS})
+    #FIXME: this needs to be done at GENERATION time, not CONFIGURE time
+    # Probably requires some arcane combination of the ARG_LINK_LIBS list
+    # and https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#target-dependent-expressions
     message(STATUS " -- Checking include directories for ${dep}")
     if(TARGET ${dep})
       get_target_property(dep_includes ${dep} INCLUDE_DIRECTORIES)
