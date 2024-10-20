@@ -51,6 +51,8 @@ endmacro()
 # Note that this only works for HEIR's own dependencies on other HEIR components,
 # and not for dependencies on LLVM/MLIR, as the upstream project does not follow this approach.
 function(add_heir_dialect dialect_name dialect_namespace)
+  message(CHECK_START "Configuring HEIR Dialect ${dialect_name}")
+  list(APPEND CMAKE_MESSAGE_INDENT " -- ")
 
   # Name of the dialect target (actual target will be created later)
   set(dialect_target "heir__Dialect__${dialect_name}")
@@ -98,8 +100,10 @@ function(add_heir_dialect dialect_name dialect_namespace)
   # Includes are the current binary directory and the include directories of all dependencies
   set(dialect_include_dirs  ${binary_dir_prefix})
   foreach(dep ${ARG_LINK_LIBS})
+    message(STATUS " -- Checking include directories for ${dep}")
     if(TARGET ${dep})
       get_target_property(dep_includes ${dep} INCLUDE_DIRECTORIES)
+      message(STATUS " --  -- Include directories for ${dep}: ${dep_includes}")
       if(NOT dep_includes STREQUAL "dep_includes-NOTFOUND")
         list(APPEND dialect_include_dirs ${dep_includes})
       endif()
@@ -152,6 +156,10 @@ function(add_heir_dialect dialect_name dialect_namespace)
   # Reset the directories to the original values
   set(CMAKE_CURRENT_BINARY_DIR ${original_current_binary_dir})
   set(CMAKE_CURRENT_SOURCE_DIR ${original_current_source_dir})
+
+  # Signal success if we made it this far
+  list(POP_BACK CMAKE_MESSAGE_INDENT)
+  message(CHECK_PASS "completed")
 
 endfunction() # add_heir_dialect
 
