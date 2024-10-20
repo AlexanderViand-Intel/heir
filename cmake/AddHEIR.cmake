@@ -129,6 +129,10 @@ function(add_heir_dialect dialect_name dialect_namespace)
   add_dependencies(${dialect_target}_AllIncGen ${dialect_target}_CopyHeaders)
   # Must generate tablegen before trying to build the dialect
   add_dependencies(${dialect_target} ${dialect_target}_AllIncGen)
+  if(TARGET obj.${dialect_target})
+    # MLIR/LLVM might decide to also create this obj. target which also needs deps
+    add_dependencies(obj.${dialect_target} ${dialect_target}_AllIncGen)
+  endif()
 
   # Main Dialect definition
   heir_dialect_tablegen(${dialect_name} Dialect dialect)
