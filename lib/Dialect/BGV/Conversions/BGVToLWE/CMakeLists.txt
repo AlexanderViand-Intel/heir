@@ -9,7 +9,7 @@ add_mlir_conversion_library(HEIRBGVToLWE
     LINK_LIBS PUBLIC
     HEIRConversionUtils
     HEIRBGV
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     MLIRPolynomialDialect
     MLIRArithDialect
     MLIRTensorDialect

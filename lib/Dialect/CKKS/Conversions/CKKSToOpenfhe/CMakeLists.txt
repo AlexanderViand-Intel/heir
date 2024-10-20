@@ -9,7 +9,7 @@ add_mlir_conversion_library(HEIRCKKSToOpenfhe
     LINK_LIBS PUBLIC
     HEIRConversionUtils
     HEIRCKKS
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     HEIROpenfhe
     HEIRLWEToOpenfhe
     HEIRRlweToOpenfhe

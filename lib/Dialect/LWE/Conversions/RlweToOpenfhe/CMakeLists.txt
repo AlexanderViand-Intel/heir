@@ -7,7 +7,7 @@ add_mlir_conversion_library(HEIRRlweToOpenfhe
         MLIRSupport
         MLIRTransformUtils
         HEIRConversionUtils
-        HEIR__Dialect__LWE
+        heir__Dialect__LWE
         HEIROpenfhe
         MLIRArithDialect
         MLIRFuncDialect

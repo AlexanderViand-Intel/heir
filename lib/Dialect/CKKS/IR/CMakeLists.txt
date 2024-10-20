@@ -5,5 +5,5 @@ add_mlir_dialect_library(HEIRCKKS
 
     DEPENDS
     HEIRCKKSIncGen
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
 )

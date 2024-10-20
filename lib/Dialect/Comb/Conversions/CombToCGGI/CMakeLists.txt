@@ -11,7 +11,7 @@ add_mlir_conversion_library(HEIRCombToCGGI
     HEIRConversionUtils
     HEIRCGGI
     HEIRComb
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     HEIRSecret
 
     LLVMSupport

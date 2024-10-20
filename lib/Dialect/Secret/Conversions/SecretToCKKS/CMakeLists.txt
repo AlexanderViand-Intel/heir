@@ -10,7 +10,7 @@ add_mlir_conversion_library(HEIRSecretToCKKS
     HEIRConversionUtils
 
     HEIRCKKS
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     HEIRSecret
     HEIRTensorExt
     LLVMSupport
