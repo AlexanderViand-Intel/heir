@@ -8,7 +8,7 @@ add_mlir_conversion_library(HEIRLWEToPolynomial
 
     LINK_LIBS PUBLIC
     HEIRConversionUtils
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     HEIRRandom
     MLIRArithDialect
 

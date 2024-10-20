@@ -42,7 +42,7 @@ add_mlir_library(HEIRAutoHogImporter
 
     LINK_LIBS PUBLIC
     HEIRCGGI
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     LLVMSupport
     MLIRIR
     MLIRSupport

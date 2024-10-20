@@ -4,7 +4,7 @@ add_mlir_library(HEIRJaxiteEmitter
     LINK_LIBS PUBLIC
     HEIRSelectVariableNames
     HEIRJaxite
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
     HEIRTargetUtils
     LLVMSupport
     MLIRArithDialect

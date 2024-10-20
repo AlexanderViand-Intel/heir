@@ -11,7 +11,7 @@ add_mlir_library(HEIRLWETransforms
     HEIRLWEPassesIncGen
 
     LINK_LIBS PUBLIC
-    HEIR__Dialect__LWE
+    heir__Dialect__LWE
 
     MLIRIR
     MLIRPass
