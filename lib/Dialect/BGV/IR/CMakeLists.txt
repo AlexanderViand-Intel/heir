@@ -7,7 +7,7 @@ add_mlir_dialect_library(HEIRBGV
     HEIRBGVIncGen
 
     LINK_LIBS PUBLIC
-    HEIRLWE
+    HEIR__Dialect__LWE
 
     # MLIR/LLVM Features
     LLVMSupport

@@ -7,13 +7,13 @@ add_mlir_conversion_library(HEIRCGGIToJaxite
     HEIRCGGIToJaxiteIncGen
     HEIRCGGI
     HEIRJaxite
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRConversionUtils
 
     LINK_LIBS PUBLIC
     HEIRCGGI
     HEIRJaxite
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRConversionUtils
 
     LLVMSupport

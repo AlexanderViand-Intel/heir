@@ -8,7 +8,7 @@ add_mlir_library(HEIRConversionUtils
     # HEIRTensorExtCanonicalizationIncGen
 
     LINK_LIBS PUBLIC
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRSecret
     HEIRTensorExt
 

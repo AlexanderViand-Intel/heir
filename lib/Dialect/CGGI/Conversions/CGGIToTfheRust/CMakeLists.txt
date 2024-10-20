@@ -7,7 +7,7 @@ add_mlir_conversion_library(HEIRCGGIToTfheRust
 
     LINK_LIBS PUBLIC
     HEIRCGGI
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRTfheRust
     HEIRConversionUtils
 
