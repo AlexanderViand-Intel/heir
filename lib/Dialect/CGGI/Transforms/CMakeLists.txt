@@ -13,7 +13,7 @@ add_mlir_library(HEIRBooleanVectorizer
 
     LINK_LIBS PUBLIC
     HEIRCGGI
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRConversionUtils
     MLIRAnalysis
     MLIRArithDialect
@@ -34,7 +34,7 @@ add_mlir_library(HEIRSetDefaultParameters
 
     LINK_LIBS PUBLIC
     HEIRCGGI
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRConversionUtils
     MLIRAnalysis
     MLIRArithDialect

@@ -3,8 +3,8 @@ add_mlir_conversion_library(HEIRLWEToOpenfhe
 
     LINK_LIBS PUBLIC
     HEIRConversionUtils
-    HEIRLWE
-    HEIRLWE
+    HEIR__Dialect__LWE
+    HEIR__Dialect__LWE
     HEIROpenfhe
 
     MLIRIR

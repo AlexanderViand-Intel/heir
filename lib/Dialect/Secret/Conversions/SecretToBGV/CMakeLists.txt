@@ -10,7 +10,7 @@ add_mlir_conversion_library(HEIRSecretToBGV
     HEIRConversionUtils
 
     HEIRBGV
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIRSecret
     HEIRTensorExt
     LLVMSupport

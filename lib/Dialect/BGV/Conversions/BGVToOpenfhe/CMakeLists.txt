@@ -8,7 +8,7 @@ add_mlir_conversion_library(HEIRBGVToOpenfhe
 
     LINK_LIBS PUBLIC
     HEIRBGV
-    HEIRLWE
+    HEIR__Dialect__LWE
     HEIROpenfhe
     HEIRConversionUtils
     LLVMSupport
