@@ -19,16 +19,27 @@ macro(heir_dialect_tablegen dialect_name file_suffix cmd)
                   -gen-${cmd}-decls
                   -dialect=${dialect_namespace}
                   EXTRA_INCLUDES
-                  ${dialect_include_dirs}
+                  # ${MLIR_INCLUDE_DIRS}
+                  ${dialect_include_dirs_GENEXP}
                 )
     mlir_tablegen(${dialect_name}${file_suffix}.cpp.inc
                    -gen-${cmd}-defs
                    -dialect=${dialect_namespace}
                   EXTRA_INCLUDES
-                  ${dialect_include_dirs}
+                  # ${MLIR_INCLUDE_DIRS}
+                  ${dialect_include_dirs_GENEXP}
                   )
     add_public_tablegen_target(${dialect_target}_${file_suffix}IncGen)
     add_dependencies(${dialect_target}_${file_suffix}IncGen ${dialect_target}_CopyHeaders)
+    # Since add_dependencies does not support generator expressions
+    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/19467)
+    # We need to do this dance with a fake library target to depend on
+    add_library(${dialect_target}_${file_suffix}DependencyHelper INTERFACE)
+    if(TARGET ${dialect_target}_${file_suffix}DependencyHelper)
+      message(STATUS "WE HAVE A TARGET: ${dialect_target}_${file_suffix}DependencyHelper")
+    endif()
+    target_link_libraries(${dialect_target}_${file_suffix}DependencyHelper INTERFACE ${dialect_dependencies_GENEXP})
+    add_dependencies(${dialect_target}_${file_suffix}IncGen ${dialect_target}_${file_suffix}DependencyHelper)
     add_dependencies(${dialect_target}_AllIncGen ${dialect_target}_${file_suffix}IncGen)
   endif()
 endmacro()
@@ -63,7 +74,6 @@ function(add_heir_dialect dialect_name dialect_namespace)
   # We do everything in a target-specific build directory
   set(original_current_binary_dir ${CMAKE_CURRENT_BINARY_DIR})
   set(original_current_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
-  set(binary_dir_prefix ${CMAKE_BINARY_DIR}) # used below the if, so must always be defined
   if(NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
     # get the relative path from the source directory to the current directory
     file(RELATIVE_PATH cur_src_dir_rel ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
@@ -87,6 +97,10 @@ function(add_heir_dialect dialect_name dialect_namespace)
     # Overwrite the standard cmake variables (will be reset at end of function)
     set(CMAKE_CURRENT_BINARY_DIR ${custom_binary_dir})
     set(CMAKE_CURRENT_SOURCE_DIR ${custom_binary_dir})
+  else()
+    # used below the if, so must always be defined
+    set(binary_dir_prefix ${CMAKE_BINARY_DIR})
+    add_custom_target(${dialect_target}_CopyHeaders) #no-op target to depend on
   endif()
 
   # Grab the list of dependencies passed in and grab all their include directories
@@ -98,21 +112,25 @@ function(add_heir_dialect dialect_name dialect_namespace)
   ${ARGN})
 
   # Includes are the current binary directory and the include directories of all dependencies
-  set(dialect_include_dirs  ${binary_dir_prefix})
+  # However, we will only be able to get the include directories of the dependencies
+  # after the dependencies have been created, so it needs to be evaluated AFTER configuration
+  # i.e., during the generation step -> generator expression stuff
+  # TODO: We probably want to make this more robust by also supporting ADDITIONAL_HEADERS,
+  set(dialect_include_dirs_GENEXP  ${binary_dir_prefix} ${MLIR_INCLUDE_DIRS} ${LLVM_INCLUDE_DIRS})
   foreach(dep ${ARG_LINK_LIBS})
-    #FIXME: this needs to be done at GENERATION time, not CONFIGURE time
-    # Probably requires some arcane combination of the ARG_LINK_LIBS list
-    # and https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#target-dependent-expressions
-    message(STATUS " -- Checking include directories for ${dep}")
-    if(TARGET ${dep})
-      get_target_property(dep_includes ${dep} INCLUDE_DIRECTORIES)
-      message(STATUS " --  -- Include directories for ${dep}: ${dep_includes}")
-      if(NOT dep_includes STREQUAL "dep_includes-NOTFOUND")
-        list(APPEND dialect_include_dirs ${dep_includes})
-      endif()
-    endif()
+    list(APPEND dialect_include_dirs_GENEXP  $<$<TARGET_EXISTS:${dep}>:$<TARGET_PROPERTY:${dep},INCLUDE_DIRECTORIES>>)
   endforeach()
-  message(STATUS "Dialect include dirs for ${dialect_name}: ${dialect_include_dirs}")
+
+  # Some of the include directories we're looking for might not exist until the corresponding
+  # dialect's AllIncGen has been run, so we need to add those targets as dependencies
+  # TODO: expand this to also support "DEPENDS"
+  set(dialect_dependencies_GENEXP "")
+  foreach(dep ${ARG_LINK_LIBS})
+    # Since add_dependencies does not support generator expressions (but link_libraries does)
+    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/19467)
+    # we must use the full C++ target ${dep} here rather than the ${dep}_AllIncGen target :(
+    list(APPEND dialect_dependencies_GENEXP  $<TARGET_NAME_IF_EXISTS:${dep}>)
+  endforeach()
 
   # Strip the namespace from the argument list, as it's not expected by add_mlir_dialect_library
   set(args ${ARGV})
@@ -130,7 +148,7 @@ function(add_heir_dialect dialect_name dialect_namespace)
   add_mlir_dialect_library(${args})
 
   # Add includes for dependencies
-  target_include_directories(${dialect_target} PUBLIC ${dialect_include_dirs})
+  target_include_directories(${dialect_target} PUBLIC ${dialect_include_dirs_GENEXP})
 
   # TableGen group target
   add_custom_target(${dialect_target}_AllIncGen)
@@ -143,6 +161,9 @@ function(add_heir_dialect dialect_name dialect_namespace)
     add_dependencies(obj.${dialect_target} ${dialect_target}_AllIncGen)
   endif()
 
+  # Create each tablegen target, depending on the existence of the corresponding .td file
+  # This also adds a dependency on ${dialect_include_dirs_GENEXP}
+  # to ensure all headers are available
   # Main Dialect definition
   heir_dialect_tablegen(${dialect_name} Dialect dialect)
   # Ops
