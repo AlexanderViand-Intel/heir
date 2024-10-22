@@ -11,35 +11,37 @@ include(TableGen)
 # For a dialect_name ABC and file_suffix Suffix it checks if ABCSuffix.td exists and if so,
 # generates the corresponding .h.inc and .cpp.inc files using -gen-cmd-declcs / -gen-cmd-defs
 # It adds ABC_CopyHeaders as a depenceny of the new tablegen target ABC_SuffixIncGen
-# and adds the new tablegen target as a dependency of ABC_AllIncGen
+# And adds the new tablegen target as a dependency of the dialect target ABC
 macro(heir_dialect_tablegen dialect_name file_suffix cmd)
   if(EXISTS "${original_current_source_dir}/${dialect_name}${file_suffix}.td")
     set(LLVM_TARGET_DEFINITIONS ${dialect_name}${file_suffix}.td)
+    set(space " ")
     mlir_tablegen(${dialect_name}${file_suffix}.h.inc
                   -gen-${cmd}-decls
-                  -dialect=${dialect_namespace}
+                  #-dialect=${dialect_namespace}
+                  DEPENDS
+                  ${dialect_target}_TablegenDeps
                   EXTRA_INCLUDES
-                  # ${MLIR_INCLUDE_DIRS}
-                  ${dialect_include_dirs_GENEXP}
-                )
+                  # get the INCLUDE_DIRECTORIES property of ${dialect_target}_AllIncGen
+                  # which is where we put all the tablegen include directories
+                  # the following line is also an incredibly dirty hack because llvm's CMake
+                  # setup treats the entire thing as a single include directory, but thankfully
+                  # we can make the actual tablegen command happy by just adding our own -I separators
+                  $<JOIN:$<TARGET_PROPERTY:${dialect_target}_AllIncGen,INTERFACE_INCLUDE_DIRECTORIES>,\\\ -I>
+                  )
     mlir_tablegen(${dialect_name}${file_suffix}.cpp.inc
                    -gen-${cmd}-defs
-                   -dialect=${dialect_namespace}
+                   # -dialect=${dialect_namespace}
+                  DEPENDS
+                  ${dialect_target}_TablegenDeps
                   EXTRA_INCLUDES
-                  # ${MLIR_INCLUDE_DIRS}
-                  ${dialect_include_dirs_GENEXP}
+                  $<JOIN:$<TARGET_PROPERTY:${dialect_target}_AllIncGen,INTERFACE_INCLUDE_DIRECTORIES>,\\\ -I>
                   )
+    # Create target and set up dependencies on (a) the copy operation and (b) tablegen dependencies
     add_public_tablegen_target(${dialect_target}_${file_suffix}IncGen)
     add_dependencies(${dialect_target}_${file_suffix}IncGen ${dialect_target}_CopyHeaders)
-    # Since add_dependencies does not support generator expressions
-    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/19467)
-    # We need to do this dance with a fake library target to depend on
-    add_library(${dialect_target}_${file_suffix}DependencyHelper INTERFACE)
-    if(TARGET ${dialect_target}_${file_suffix}DependencyHelper)
-      message(STATUS "WE HAVE A TARGET: ${dialect_target}_${file_suffix}DependencyHelper")
-    endif()
-    target_link_libraries(${dialect_target}_${file_suffix}DependencyHelper INTERFACE ${dialect_dependencies_GENEXP})
-    add_dependencies(${dialect_target}_${file_suffix}IncGen ${dialect_target}_${file_suffix}DependencyHelper)
+    add_dependencies(${dialect_target}_${file_suffix}IncGen ${dialect_target}_TablegenDeps)
+    # Add the newly created target to the convenience target ${dialect_target}_AllIncGen
     add_dependencies(${dialect_target}_AllIncGen ${dialect_target}_${file_suffix}IncGen)
   endif()
 endmacro()
@@ -115,23 +117,30 @@ function(add_heir_dialect dialect_name dialect_namespace)
   # However, we will only be able to get the include directories of the dependencies
   # after the dependencies have been created, so it needs to be evaluated AFTER configuration
   # i.e., during the generation step -> generator expression stuff
-  # TODO: We probably want to make this more robust by also supporting ADDITIONAL_HEADERS,
-  set(dialect_include_dirs_GENEXP  ${binary_dir_prefix} ${MLIR_INCLUDE_DIRS} ${LLVM_INCLUDE_DIRS})
-  foreach(dep ${ARG_LINK_LIBS})
-    list(APPEND dialect_include_dirs_GENEXP  $<$<TARGET_EXISTS:${dep}>:$<TARGET_PROPERTY:${dep},INCLUDE_DIRECTORIES>>)
+  set(dialect_tablegen_include_dirs_GENEXP_helper  "")
+  foreach(dep ${ARG_LINK_LIBS} ${ARG_LINK_COMPONENTS})
+    #FIXME: if a target already ends in _AllIncGen, we should not append that string again!
+    set(_prop "$<TARGET_PROPERTY:${dep},INCLUDE_DIRECTORIES>")
+    set(_tgt "$<TARGET_EXISTS:${dep}_AllIncGen>")
+    list(APPEND dialect_tablegen_include_dirs_GENEXP_helper  "$<${_tgt}:${_prop}>")
   endforeach()
-
-  # Some of the include directories we're looking for might not exist until the corresponding
-  # dialect's AllIncGen has been run, so we need to add those targets as dependencies
-  # TODO: expand this to also support "DEPENDS"
-  set(dialect_dependencies_GENEXP "")
-  foreach(dep ${ARG_LINK_LIBS})
-    # Since add_dependencies does not support generator expressions (but link_libraries does)
-    # (see https://gitlab.kitware.com/cmake/cmake/-/issues/19467)
-    # we must use the full C++ target ${dep} here rather than the ${dep}_AllIncGen target :(
-    list(APPEND dialect_dependencies_GENEXP  $<TARGET_NAME_IF_EXISTS:${dep}>)
+  set(dialect_tablegen_include_dirs_GENEXP "$<FILTER:${dialect_tablegen_include_dirs_GENEXP_helper},EXCLUDE,^$>")
+  message(STATUS "Dialect ${dialect_name} include dirs: ${dialect_tablegen_include_dirs_GENEXP}")
+  add_library(${dialect_target}_AllIncGen INTERFACE)
+  target_include_directories(${dialect_target}_AllIncGen INTERFACE ${binary_dir_prefix} ${dialect_tablegen_include_dirs_GENEXP})
+  # # get INCLUDE_DIRECTORIES property of ${dialect_target}_AllIncGen
+  # get_target_property(dummy ${dialect_target}_AllIncGen INTERFACE_INCLUDE_DIRECTORIES)
+  # message(STATUS "Dialect ${dialect_name} include dirs:" ${dummy})
+  file(GENERATE OUTPUT ${dialect_target}_AllIncGen_DEBUG CONTENT "$<JOIN:$<TARGET_PROPERTY:${dialect_target}_AllIncGen,INTERFACE_INCLUDE_DIRECTORIES>, -I>")
+  set(dialect_tablegen_dependencies_GENEXP "")
+  foreach(dep ${ARG_DEPENDS} ${ARG_LINK_LIBS} ${ARG_LINK_COMPONENTS})
+    #FIXME: if a target already ends in _AllIncGen, we should not append that string again!
+    list(APPEND dialect_tablegen_dependencies_GENEXP  $<TARGET_NAME_IF_EXISTS:${dep}_AllIncGen>)
   endforeach()
-
+ # add_custom_target(${dialect_target}_dialect_tablegen_dependencies_GENEXP_DEBUG COMMAND ${CMAKE_COMMAND} -E echo ${dialect_tablegen_dependencies_GENEXP})
+  add_custom_target(${dialect_target}_TablegenDeps
+                    DEPENDS ${dialect_tablegen_dependencies_GENEXP}
+                    )
   # Strip the namespace from the argument list, as it's not expected by add_mlir_dialect_library
   set(args ${ARGV})
   list(REMOVE_AT args 1)
@@ -147,23 +156,26 @@ function(add_heir_dialect dialect_name dialect_namespace)
   # unless something changes with the macros in AddMLIR.cmake / AddLLVM.cmake upstream
   add_mlir_dialect_library(${args})
 
-  # Add includes for dependencies
-  target_include_directories(${dialect_target} PUBLIC ${dialect_include_dirs_GENEXP})
+  # Add it's own directory to the include directories
+  target_include_directories(${dialect_target} PUBLIC ${binary_dir_prefix})
+  # # Add includes for dependencies
+  target_include_directories(${dialect_target} PUBLIC ${dialect_tablegen_include_dirs_GENEXP})
 
-  # TableGen group target
-  add_custom_target(${dialect_target}_AllIncGen)
-  # must copy headers before generating tablegen
-  add_dependencies(${dialect_target}_AllIncGen ${dialect_target}_CopyHeaders)
-  # Must generate tablegen before trying to build the dialect
-  add_dependencies(${dialect_target} ${dialect_target}_AllIncGen)
-  if(TARGET obj.${dialect_target})
-    # MLIR/LLVM might decide to also create this obj. target which also needs deps
-    add_dependencies(obj.${dialect_target} ${dialect_target}_AllIncGen)
-  endif()
+  # target_include_directories(${dialect_target} PUBLIC ${dialect_tablegen_include_dirs_GENEXP})
 
   # Create each tablegen target, depending on the existence of the corresponding .td file
-  # This also adds a dependency on ${dialect_include_dirs_GENEXP}
-  # to ensure all headers are available
+  # FIXME: The macro needs to handle tablegen dependencies on other HEIR dialects
+  # add_library(${dialect_target}_AllIncGen INTERFACE) # moved up for testing stuff
+  set(target_to_use ${dialect_target})
+  if(TARGET obj.${dialect_target})
+    # MLIR/LLVM might decide to also create this obj. target
+    # since the main target depends on it, we can add our dependency only there
+    # as this will create slightly nicer dependency graphs while debugging this stuff
+    # FIXME: go back to setting dependencies on both targets
+    set(target_to_use obj.${dialect_target})
+  endif()
+  add_dependencies(${target_to_use} ${dialect_target}_AllIncGen)
+
   # Main Dialect definition
   heir_dialect_tablegen(${dialect_name} Dialect dialect)
   # Ops
