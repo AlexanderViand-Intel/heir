@@ -1,4 +1,5 @@
 #include "lib/Source/AutoHog/AutoHogImporter.h"
+#include "lib/Target/Heracles/HeraclesSDKEmitter.h"
 #include "lib/Target/Jaxite/JaxiteEmitter.h"
 #include "lib/Target/Lattigo/LattigoEmitter.h"
 #include "lib/Target/Metadata/MetadataEmitter.h"
@@ -35,6 +36,9 @@ int main(int argc, char **argv) {
 
   // AutoHOG input
   mlir::heir::registerFromAutoHogTranslation();
+
+  // Heracles SDK
+  mlir::heir::heracles::registerToHeraclesSDKTranslation();
 
   return failed(mlir::mlirTranslateMain(argc, argv, "HEIR Translation Tool"));
 }
