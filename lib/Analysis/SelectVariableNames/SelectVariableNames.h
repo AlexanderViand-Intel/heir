@@ -15,7 +15,7 @@ namespace heir {
 
 class SelectVariableNames {
  public:
-  SelectVariableNames(Operation *op);
+  SelectVariableNames(Operation *op, bool skipZero = true);
   ~SelectVariableNames() = default;
 
   /// Return the name assigned to the given value, or an empty string if the
