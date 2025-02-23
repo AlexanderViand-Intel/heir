@@ -23,7 +23,8 @@ namespace heracles {
 void registerToHeraclesDataHelperTranslation();
 void registerHeraclesDataHelperTranslateOptions();
 
-/// Translates the given operation to the Heracles SDK (scheme level) format
+/// Emits C++ code similar to the OpenFHEPke emitter,
+// but augmented to serialize the ctxts to HERACLES data format (using protobuf)
 LogicalResult translateToHeraclesDataHelper(
     Operation *op, llvm::raw_ostream &os,
     const openfhe::OpenfheImportType &importType);
@@ -47,7 +48,7 @@ class HeraclesSDKDataHelperEmitter {
   /// values.
   SelectVariableNames *variableNames;
 
-  // Functions for emitting individual ops to protobuf
+  // Functions for emitting individual ops
   LogicalResult printOperation(::mlir::ModuleOp op);
   LogicalResult printOperation(::mlir::func::FuncOp op);
   LogicalResult printOperation(::mlir::func::CallOp op);
@@ -75,17 +76,11 @@ class HeraclesSDKDataHelperEmitter {
   LogicalResult printOperation(tensor::SplatOp op);
   LogicalResult printOperation(tensor::EmptyOp op);
 
-  StringRef canonicalizeDebugPort(StringRef debugPortName);
-  void emitAutoAssignPrefix(Value result);
-  LogicalResult emitTypedAssignPrefix(Value result, Location loc);
-
-  // Helper for above
-  LogicalResult emitOpHelper(std::string_view name,
-                             openfhe::OpenfheScheme scheme, Value result,
-                             ValueRange operands,
-                             std::vector<int64_t> immediates = {});
-
+  // Helpers for above
   LogicalResult emitType(Type type, Location loc);
+  LogicalResult emitTypedAssignPrefix(Value result, Location loc);
+  void emitAutoAssignPrefix(Value result);
+  StringRef canonicalizeDebugPort(StringRef debugPortName);
 };
 
 }  // namespace heracles

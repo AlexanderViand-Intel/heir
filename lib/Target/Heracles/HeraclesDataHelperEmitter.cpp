@@ -32,6 +32,8 @@ namespace heracles {
 
 using openfhe::convertType;
 using openfhe::getContextualCryptoContext;
+using openfhe::OpenfheImportType;
+using openfhe::options;
 
 namespace {
 // FIXME: taken from OpenFhePkeEmitter.cpp
@@ -68,8 +70,8 @@ void registerToHeraclesDataHelperTranslation() {
       "emit-heracles-data-helper",
       "emits helper that handles encode/encypt decode/decrypt",
       [](Operation *op, llvm::raw_ostream &output) {
-        return translateToHeraclesDataHelper(
-            op, output, openfhe::options->openfheImportType);
+        return translateToHeraclesDataHelper(op, output,
+                                             options->openfheImportType);
       },
       [](DialectRegistry &registry) {
         registry.insert<arith::ArithDialect, func::FuncDialect,
@@ -82,8 +84,7 @@ void registerToHeraclesDataHelperTranslation() {
 }
 
 LogicalResult translateToHeraclesDataHelper(
-    Operation *op, llvm::raw_ostream &os,
-    const openfhe::OpenfheImportType &importType) {
+    Operation *op, llvm::raw_ostream &os, const OpenfheImportType &importType) {
   SelectVariableNames variableNames(op, false);
   HeraclesSDKDataHelperEmitter emitter(os, &variableNames, importType);
   return emitter.translate(*op);
@@ -182,7 +183,7 @@ LogicalResult HeraclesSDKDataHelperEmitter::printOperation(
     func::FuncOp funcOp) {
   if (funcOp.getNumResults() > 1) {
     emitWarning(
-        funcOp.getLoc(),
+        funcOp->getLoc(),
         llvm::formatv("Only functions with a single return type "
                       "are supported, but function {0} has {1}, skipping.",
                       funcOp.getName(), funcOp.getNumResults()));
@@ -740,7 +741,7 @@ LogicalResult HeraclesSDKDataHelperEmitter::emitType(Type type, Location loc) {
 
 HeraclesSDKDataHelperEmitter::HeraclesSDKDataHelperEmitter(
     raw_ostream &os, SelectVariableNames *variableNames,
-    const openfhe::OpenfheImportType &importType)
+    const OpenfheImportType &importType)
     : os(os), importType_(importType), variableNames(variableNames) {}
 
 }  // namespace heracles
