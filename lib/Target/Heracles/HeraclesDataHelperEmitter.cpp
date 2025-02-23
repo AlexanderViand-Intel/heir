@@ -26,6 +26,8 @@
 #include "mlir/include/mlir/Support/LLVM.h"              // from @llvm-project
 #include "mlir/include/mlir/Tools/mlir-translate/Translation.h"  // from @llvm-project
 
+#define DEBUG_TYPE "HeraclesDataHelperEmitter"
+
 namespace mlir {
 namespace heir {
 namespace heracles {
@@ -170,8 +172,11 @@ StringRef HeraclesSDKDataHelperEmitter::canonicalizeDebugPort(
 
 LogicalResult HeraclesSDKDataHelperEmitter::printOperation(
     openfhe::EncryptOp op) {
-  os << variableNames->getNameForValue(op.getCryptoContext()) << "->" << op
-     << "(";
+  if (op->getNumResults() != 1) {
+    return emitError(op.getLoc(), "Only one return value supported");
+  }
+  emitAutoAssignPrefix(op->getResult(0));
+  os << variableNames->getNameForValue(op.getCryptoContext()) << "->Encrypt(";
   os << commaSeparatedValues(
       {op.getPublicKey(), op.getPlaintext()},
       [&](Value value) { return variableNames->getNameForValue(value); });
@@ -181,12 +186,11 @@ LogicalResult HeraclesSDKDataHelperEmitter::printOperation(
 
 LogicalResult HeraclesSDKDataHelperEmitter::printOperation(
     func::FuncOp funcOp) {
-  if (funcOp.getNumResults() > 1) {
-    emitWarning(
-        funcOp->getLoc(),
-        llvm::formatv("Only functions with a single return type "
-                      "are supported, but function {0} has {1}, skipping.",
-                      funcOp.getName(), funcOp.getNumResults()));
+  // If function name does not contain `__`, skip it
+  if (funcOp.getName().str().find("__") == std::string::npos) {
+    LLVM_DEBUG(emitWarning(funcOp.getLoc(),
+                           "Skipping function " + funcOp.getName().str() +
+                               " with double underscore in name."););
     return success();
   }
 
