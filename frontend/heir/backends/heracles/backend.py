@@ -87,6 +87,14 @@ class HeraclesClientInterface(ClientInterface):
 
 class HeraclesBackend(BackendInterface):
 
+  def __init__(self, output_format: str = "protobuf"):
+    if output_format != "legacy-csv" and output_format != "protobuf":
+      raise ValueError(
+          f"Unsupported output format {output_format} "
+          "requested from HeraclesBackend."
+      )
+    self.output_format = output_format
+
   def run_backend(
       self,
       workspace_dir,
@@ -131,14 +139,33 @@ class HeraclesBackend(BackendInterface):
       with open(graphpath, "w") as f:
         f.write(graph)
 
-    # Translate to Heracles SDK *.csv format
-    csv_filepath = Path(workspace_dir) / f"{func_name}.csv"
-    heir_translate_options = [
-        "--allow-unregistered-dialect",  # TODO(1414): remove once the translate input no longer includes stray attributes
-        "--emit-heracles-sdk",
-        "-o",
-        csv_filepath,
-    ]
+    # Instruction Emission
+    filepath = ""
+    heir_translate_options = ""
+    if self.output_format == "legacy-csv":
+      # Translate to Heracles SDK legacy *.csv format
+      csv_filepath = Path(workspace_dir) / f"{func_name}.csv"
+      heir_translate_options = [
+          "--allow-unregistered-dialect",  # TODO(1414): remove once the translate input no longer includes stray attributes
+          "--emit-heracles-sdk",
+          "--heracles-output-format=legacy-csv",
+          "--debug-only=HeraclesSDKEmitter" if debug else "",
+          "-o",
+          csv_filepath,
+      ]
+
+    if self.output_format == "protobuf":
+      # Translate to HERACLES protobuf instruction format:
+      bin_filepath = Path(workspace_dir) / f"{func_name}.bin"
+      heir_translate_options = [
+          "--allow-unregistered-dialect",  # TODO(1414): remove once the translate input no longer includes stray attributes
+          "--emit-heracles-sdk",
+          "--heracles-output-format=protobuf",
+          "--debug-only=HeraclesSDKEmitter" if debug else "",
+          "-o",
+          bin_filepath,
+      ]
+
     if debug:
       print(
           "HEIRpy Debug (Heracles Backend): "

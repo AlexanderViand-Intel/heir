@@ -9,7 +9,7 @@ from heir.backends.heracles import HeraclesBackend
 
 ### Simple Example
 @compile(
-    debug=True, backend=HeraclesBackend()
+    debug=True, backend=HeraclesBackend(output_format="protobuf")
 )  # defaults to scheme="bgv", OpenFHE backend, and debug=False
 def func(x: Secret[I16], y: Secret[I16]):
   sum = x + y
