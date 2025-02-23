@@ -24,13 +24,13 @@ std::string SelectVariableNames::suggestNameForValue(Value value) {
   return defaultPrefix;
 }
 
-SelectVariableNames::SelectVariableNames(Operation *op) {
+SelectVariableNames::SelectVariableNames(Operation *op, bool skipZero) {
   int i = 0;
   std::map<std::string, int> prefixCount;
 
   auto assignName = [&](Value value) {
     std::string name = suggestNameForValue(value);
-    if (prefixCount.count(name) == 0 && name != defaultPrefix) {
+    if (skipZero && prefixCount.count(name) == 0 && name != defaultPrefix) {
       // for non-default prefix
       // the first one is "prefix", the next one is "prefix1"
       prefixCount[name] = 1;
