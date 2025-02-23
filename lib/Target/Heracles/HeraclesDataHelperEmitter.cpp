@@ -181,10 +181,11 @@ LogicalResult HeraclesSDKDataHelperEmitter::printOperation(
 LogicalResult HeraclesSDKDataHelperEmitter::printOperation(
     func::FuncOp funcOp) {
   if (funcOp.getNumResults() > 1) {
-    emitWarning(funcOp.getLoc(),
-                llvm::formatv("Only functions with a single return type "
-                              "are supported, but this function has {0}",
-                              funcOp.getNumResults()));
+    emitWarning(
+        funcOp.getLoc(),
+        llvm::formatv("Only functions with a single return type "
+                      "are supported, but function {0} has {1}, skipping.",
+                      funcOp.getName(), funcOp.getNumResults()));
     return success();
   }
 
