@@ -23,6 +23,7 @@ namespace heir {
 namespace openfhe {
 
 llvm::ManagedStatic<openfhe::TranslateOptions> options;
+llvm::ManagedStatic<openfhe::PybindOptions> pybindOptions;
 
 std::string getModulePrelude(OpenfheScheme scheme,
                              OpenfheImportType importType) {

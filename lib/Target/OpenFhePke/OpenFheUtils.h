@@ -51,6 +51,19 @@ struct TranslateOptions {
 
 extern llvm::ManagedStatic<openfhe::TranslateOptions> options;
 
+struct PybindOptions {
+  llvm::cl::opt<std::string> pybindHeaderInclude{
+      "pybind-header-include",
+      llvm::cl::desc(
+          "The HEIR-generated header to include for the pybind11 bindings")};
+  llvm::cl::opt<std::string> pybindModuleName{
+      "pybind-module-name",
+      llvm::cl::desc(
+          "The name of the generated python module (must match the .so file)")};
+};
+
+extern llvm::ManagedStatic<PybindOptions> pybindOptions;
+
 std::string getModulePrelude(OpenfheScheme scheme,
                              OpenfheImportType importType);
 

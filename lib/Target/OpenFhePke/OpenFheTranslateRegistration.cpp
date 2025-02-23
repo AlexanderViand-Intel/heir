@@ -27,18 +27,6 @@ namespace mlir {
 namespace heir {
 namespace openfhe {
 
-struct PybindOptions {
-  llvm::cl::opt<std::string> pybindHeaderInclude{
-      "pybind-header-include",
-      llvm::cl::desc(
-          "The HEIR-generated header to include for the pybind11 bindings")};
-  llvm::cl::opt<std::string> pybindModuleName{
-      "pybind-module-name",
-      llvm::cl::desc(
-          "The name of the generated python module (must match the .so file)")};
-};
-static llvm::ManagedStatic<PybindOptions> pybindOptions;
-
 void registerTranslateOptions() {
   // Forces initialization of options.
   *options;
