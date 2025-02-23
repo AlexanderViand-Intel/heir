@@ -41,7 +41,7 @@ def OptimizeRelinearization : Pass <"optimize-relinearization"> {
     Option<"allowMixedDegreeOperands",
            "allow-mixed-degree-operands",
            "bool",
-           /*default=*/"true",
+           /*default=*/"false",
            "When true, allow ops to have mixed-degree ciphertexts as inputs, e.g., "
            "adding two ciphertexts with different key bases; this is supported by "
            "many FHE backends, like OpenFHE and Lattigo">,
