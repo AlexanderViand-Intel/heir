@@ -2,12 +2,15 @@
 
 from heir import compile
 from heir.mlir import Secret, I16, I64, F32, Tensor
+from heir.backends.heracles import HeraclesBackend
 
 # TODO (#1162): Also add the tensorflow-to-tosa-to-HEIR example in example.py, even it doesn't use the main Python frontend?
 
 
 ### Simple Example
-@compile()  # defaults to scheme="bgv", OpenFHE backend, and debug=False
+@compile(
+    debug=True, backend=HeraclesBackend()
+)  # defaults to scheme="bgv", OpenFHE backend, and debug=False
 def func(x: Secret[I16], y: Secret[I16]):
   sum = x + y
   diff = x - y
