@@ -20,14 +20,16 @@ namespace mlir {
 namespace heir {
 
 std::string commaSeparatedValues(
-    ValueRange values, std::function<std::string(Value)> valueToString) {
+    ValueRange values, std::function<std::string(Value)> valueToString,
+    bool add_spaces) {
   if (values.empty()) {
     return std::string();
   }
+  std::string separator = add_spaces ? ", " : ",";
   return std::accumulate(std::next(values.begin()), values.end(),
                          valueToString(values[0]),
                          [&](const std::string& a, Value b) {
-                           return a + ", " + valueToString(b);
+                           return a + separator + valueToString(b);
                          });
 }
 

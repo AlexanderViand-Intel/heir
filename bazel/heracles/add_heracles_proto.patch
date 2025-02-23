@@ -1,0 +1,13 @@
+--- heracles/heracles_proto.h
++++ heracles/heracles_proto.h
+@@ -0,0 +1,10 @@
++// Copyright (C) 2023 Intel Corporation
++
++#ifndef _heracles_proto_h_
++#define _heracles_proto_h_
++
++#include "heracles/proto/common.pb.h"
++#include "heracles/proto/data.pb.h"
++#include "heracles/proto/fhe_trace.pb.h"
++#include "heracles/proto/maps.pb.h"
++#endif  // _heracles_proto_h_

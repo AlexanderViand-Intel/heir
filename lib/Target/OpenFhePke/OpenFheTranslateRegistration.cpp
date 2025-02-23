@@ -13,7 +13,6 @@
 #include "lib/Target/OpenFhePke/OpenFhePkePybindEmitter.h"
 #include "lib/Target/OpenFhePke/OpenFheUtils.h"
 #include "llvm/include/llvm/Support/CommandLine.h"       // from @llvm-project
-#include "llvm/include/llvm/Support/ManagedStatic.h"     // from @llvm-project
 #include "llvm/include/llvm/Support/raw_ostream.h"       // from @llvm-project
 #include "mlir/include/mlir/Dialect/Arith/IR/Arith.h"    // from @llvm-project
 #include "mlir/include/mlir/Dialect/Func/IR/FuncOps.h"   // from @llvm-project
@@ -27,23 +26,6 @@
 namespace mlir {
 namespace heir {
 namespace openfhe {
-
-struct TranslateOptions {
-  llvm::cl::opt<mlir::heir::openfhe::OpenfheImportType> openfheImportType{
-      "openfhe-include-type",
-      llvm::cl::desc("The type of imports to use for OpenFHE"),
-      llvm::cl::init(mlir::heir::openfhe::OpenfheImportType::INSTALL_RELATIVE),
-      llvm::cl::values(
-          clEnumValN(mlir::heir::openfhe::OpenfheImportType::INSTALL_RELATIVE,
-                     "install-relative",
-                     "Emit OpenFHE with install-relative import paths (default "
-                     "for user-facing code)"),
-          clEnumValN(mlir::heir::openfhe::OpenfheImportType::SOURCE_RELATIVE,
-                     "source-relative",
-                     "Emit OpenFHE with source-relative import paths (default "
-                     "for HEIR-internal development)"))};
-};
-static llvm::ManagedStatic<TranslateOptions> options;
 
 struct PybindOptions {
   llvm::cl::opt<std::string> pybindHeaderInclude{

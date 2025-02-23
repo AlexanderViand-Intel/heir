@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "llvm/include/llvm/Support/CommandLine.h"    // from @llvm-project
+#include "llvm/include/llvm/Support/ManagedStatic.h"  // from @llvm-project
 #include "mlir/include/mlir/IR/Location.h"            // from @llvm-project
 #include "mlir/include/mlir/IR/Types.h"               // from @llvm-project
 #include "mlir/include/mlir/IR/Value.h"               // from @llvm-project
@@ -30,6 +32,24 @@ enum class OpenfheImportType {
   // as a shared library dependency of a heir frontend.
   INSTALL_RELATIVE
 };
+
+struct TranslateOptions {
+  llvm::cl::opt<mlir::heir::openfhe::OpenfheImportType> openfheImportType{
+      "openfhe-include-type",
+      llvm::cl::desc("The type of imports to use for OpenFHE"),
+      llvm::cl::init(mlir::heir::openfhe::OpenfheImportType::INSTALL_RELATIVE),
+      llvm::cl::values(
+          clEnumValN(mlir::heir::openfhe::OpenfheImportType::INSTALL_RELATIVE,
+                     "install-relative",
+                     "Emit OpenFHE with install-relative import paths (default "
+                     "for user-facing code)"),
+          clEnumValN(mlir::heir::openfhe::OpenfheImportType::SOURCE_RELATIVE,
+                     "source-relative",
+                     "Emit OpenFHE with source-relative import paths (default "
+                     "for HEIR-internal development)"))};
+};
+
+extern llvm::ManagedStatic<openfhe::TranslateOptions> options;
 
 std::string getModulePrelude(OpenfheScheme scheme,
                              OpenfheImportType importType);

@@ -22,7 +22,8 @@ namespace heir {
 // ValueRange, with each value being converted to a string by the given mapping
 // function.
 std::string commaSeparatedValues(
-    ValueRange values, std::function<std::string(Value)> valueToString);
+    ValueRange values, std::function<std::string(Value)> valueToString,
+    bool add_spaces = true);
 
 // Return a comma-separated string containing the values in the given
 // ArrayRef, with each value being converted to a string by std::to_string

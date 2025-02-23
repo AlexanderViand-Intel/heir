@@ -143,7 +143,7 @@ git_repository(
 ## Protobuf
 git_repository(
     name = "com_google_protobuf",
-    commit = "2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5",
+    commit = "2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5",  # v26.1
     remote = "https://github.com/protocolbuffers/protobuf.git",
 )
 
@@ -427,4 +427,13 @@ git_repository(
     build_file = "//bazel/pocketfft:pocketfft.BUILD",
     commit = "bb5bdb776c64819f66cb2205f78bef1581448628",
     remote = "https://gitlab.mpcdf.mpg.de/mtr/pocketfft.git",
+)
+
+# HERACLES dependencies (some of which are still private repos)
+git_repository(
+    name = "heracles_data_formats",
+    build_file = "//bazel/heracles:heracles_data_formats.BUILD",
+    commit = "f3bc197530b2ba2c1651f61ca82ba7a614be2884",
+    patches = ["@heir//bazel/heracles:add_heracles_proto.patch"],
+    remote = "https://github.com/IntelLabs/heracles-data-formats.git",
 )

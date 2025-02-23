@@ -22,6 +22,8 @@ namespace mlir {
 namespace heir {
 namespace openfhe {
 
+llvm::ManagedStatic<openfhe::TranslateOptions> options;
+
 std::string getModulePrelude(OpenfheScheme scheme,
                              OpenfheImportType importType) {
   auto import = importType == OpenfheImportType::SOURCE_RELATIVE
