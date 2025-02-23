@@ -28,6 +28,8 @@
 #include "mlir/include/mlir/Support/LLVM.h"              // from @llvm-project
 #include "mlir/include/mlir/Tools/mlir-translate/Translation.h"  // from @llvm-project
 
+#define DEBUG_TYPE "HeraclesSDKEmitter"
+
 namespace mlir {
 namespace heir {
 namespace heracles {
@@ -84,20 +86,11 @@ LogicalResult translateToHeraclesInstructions(
 }
 
 LogicalResult HeraclesSDKEmitter::dump_trace() {
-  bool debug = true;
-  if (debug) {
-    llvm::dbgs() << trace.DebugString();
-  }
+  LLVM_DEBUG(llvm::dbgs() << trace.DebugString());
   std::ostringstream oss;
   trace.SerializeToOstream(&oss);
   // FIXME: This seems inefficient, but should be ok for testing
   os.getOStream() << oss.str();
-
-  if (debug) {
-    // Check that we can store as file and load again:
-    sdk::fhe_trace::store_trace("test.bin", trace);
-    sdk::fhe_trace::Trace new_trace = sdk::fhe_trace::load_trace("test.bin");
-  }
 
   return success();
 }
@@ -129,10 +122,13 @@ LogicalResult HeraclesSDKEmitter::translate(::mlir::Operation &op) {
               ckks::RelinearizeOp, ckks::RotateOp, ckks::RescaleOp,
               ckks::ExtractOp>([&](auto op) { return translate(op); })
           .Case<
-              // No-Op operations this emitter can skip
+              // FIXME: make these hard errors and move encode to helper
+              // function! No-Op operations this emitter can skip for now
               lwe::RLWEEncodeOp, lwe::RLWEDecodeOp, lwe::RLWEEncryptOp,
-              lwe::RLWEDecryptOp, func::ReturnOp>(
-              [&](auto op) { return success(); })
+              lwe::RLWEDecryptOp, func::ReturnOp>([&](auto op) {
+            emitWarning(op.getLoc(), "Skipping operation.");
+            return success();
+          })
           .Default([&](Operation &) {
             return emitError(op.getLoc(), "unable to find emitter for op");
           });
@@ -216,6 +212,12 @@ LogicalResult HeraclesSDKEmitter::emitOperation(ModuleOp moduleOp) {
 }
 
 LogicalResult HeraclesSDKEmitter::printOperation(func::FuncOp funcOp) {
+  // If function name starts with `__`, skip it
+  if (funcOp.getName().str().rfind("__", 0)) {
+    LLVM_DEBUG(emitWarning(funcOp.getLoc(), "Skipping function '__'."));
+    return success();
+  }
+
   for (Block &block : funcOp.getBlocks()) {
     for (Operation &op : block.getOperations()) {
       if (failed(translate(op))) {
@@ -227,6 +229,12 @@ LogicalResult HeraclesSDKEmitter::printOperation(func::FuncOp funcOp) {
 }
 
 LogicalResult HeraclesSDKEmitter::emitOperation(func::FuncOp funcOp) {
+  // If function name starts with `__`, skip it
+  if (funcOp.getName().str().rfind("__", 0)) {
+    LLVM_DEBUG(emitWarning(funcOp.getLoc(), "Skipping function '__'."));
+    return success();
+  }
+
   for (Block &block : funcOp.getBlocks()) {
     for (Operation &op : block.getOperations()) {
       if (failed(translate(op))) {
