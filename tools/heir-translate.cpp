@@ -1,5 +1,6 @@
 #include "lib/Source/AutoHog/AutoHogImporter.h"
 #include "lib/Target/Heracles/HeraclesDataHelperEmitter.h"
+#include "lib/Target/Heracles/HeraclesDataHelperHeaderEmitter.h"
 #include "lib/Target/Heracles/HeraclesSDKEmitter.h"
 #include "lib/Target/Jaxite/JaxiteEmitter.h"
 #include "lib/Target/Lattigo/LattigoEmitter.h"
@@ -43,6 +44,7 @@ int main(int argc, char **argv) {
   mlir::heir::heracles::registerHeraclesTranslateOptions();
   mlir::heir::heracles::registerToHeraclesSDKTranslation();
   mlir::heir::heracles::registerToHeraclesDataHelperTranslation();
+  mlir::heir::heracles::registerToHeraclesDataHelperHeaderTranslation();
 
   // This comment inserts internal emitters
 

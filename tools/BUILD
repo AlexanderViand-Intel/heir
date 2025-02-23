@@ -181,6 +181,7 @@ cc_binary(
     deps = [
         "@heir//lib/Source/AutoHog:AutoHogImporter",
         "@heir//lib/Target/Heracles:HeraclesDataHelperEmitter",
+        "@heir//lib/Target/Heracles:HeraclesDataHelperHeaderEmitter",
         "@heir//lib/Target/Heracles:HeraclesSDKEmitter",
         "@heir//lib/Target/Jaxite:JaxiteEmitter",
         "@heir//lib/Target/Lattigo:LattigoEmitter",
