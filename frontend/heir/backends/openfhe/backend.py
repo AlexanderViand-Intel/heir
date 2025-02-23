@@ -64,7 +64,6 @@ class OpenfheClientInterface(ClientInterface):
       raise RuntimeError(msg)
 
     if key.startswith("encrypt_"):
-      # TODO (#1162): Prevent people from doing a = enc_x, b = enc_y for foo(x,y) but then calling foo(b,a)!
       # TODO (#1119): expose ctxt serialization in python
       if self.compilation_result.arg_enc_funcs is None:
         raise ValueError("No encryption functions found in compilation result")
