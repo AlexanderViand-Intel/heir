@@ -86,7 +86,7 @@ LogicalResult translateToHeraclesInstructions(
 }
 
 LogicalResult HeraclesSDKEmitter::dump_trace() {
-  LLVM_DEBUG(llvm::dbgs() << trace.DebugString());
+  LLVM_DEBUG(llvm::dbgs() << trace.DebugString(););
   std::ostringstream oss;
   trace.SerializeToOstream(&oss);
   // FIXME: This seems inefficient, but should be ok for testing
@@ -212,9 +212,11 @@ LogicalResult HeraclesSDKEmitter::emitOperation(ModuleOp moduleOp) {
 }
 
 LogicalResult HeraclesSDKEmitter::printOperation(func::FuncOp funcOp) {
-  // If function name starts with `__`, skip it
-  if (funcOp.getName().str().rfind("__", 0)) {
-    LLVM_DEBUG(emitWarning(funcOp.getLoc(), "Skipping function '__'."));
+  // If function name contains `__`, skip it
+  if (funcOp.getName().str().find("__") != std::string::npos) {
+    LLVM_DEBUG(emitWarning(funcOp.getLoc(),
+                           "Skipping function " + funcOp.getName().str() +
+                               " with double underscore in name."););
     return success();
   }
 
@@ -229,9 +231,11 @@ LogicalResult HeraclesSDKEmitter::printOperation(func::FuncOp funcOp) {
 }
 
 LogicalResult HeraclesSDKEmitter::emitOperation(func::FuncOp funcOp) {
-  // If function name starts with `__`, skip it
-  if (funcOp.getName().str().rfind("__", 0)) {
-    LLVM_DEBUG(emitWarning(funcOp.getLoc(), "Skipping function '__'."));
+  // If function name contains `__`, skip it
+  if (funcOp.getName().str().find("__") != std::string::npos) {
+    LLVM_DEBUG(emitWarning(funcOp.getLoc(),
+                           "Skipping function " + funcOp.getName().str() +
+                               " with double underscore in name."););
     return success();
   }
 
@@ -266,8 +270,9 @@ LogicalResult HeraclesSDKEmitter::printOperation(
 
 LogicalResult HeraclesSDKEmitter::emitOperation(
     lwe::ReinterpretUnderlyingTypeOp op) {
-  assert(false);
-  throw std::logic_error("Not yet implemented.");  // FIXME: implement
+  throw std::logic_error(
+      "`lwe.reinterpret_underlying_type` Not yet implemented.");  // FIXME:
+                                                                  // implement
 }
 
 LogicalResult HeraclesSDKEmitter::printOperation(lwe::RAddOp op) {
@@ -318,8 +323,18 @@ LogicalResult HeraclesSDKEmitter::printOperation(lwe::RSubOp op) {
 }
 
 LogicalResult HeraclesSDKEmitter::emitOperation(lwe::RSubOp op) {
-  assert(false);
-  throw std::logic_error("Not yet implemented.");  // FIXME: implement
+  auto module = op->getParentOfType<ModuleOp>();
+  sdk::common::Scheme scheme;
+  if (module->getAttr(kCKKSSchemeAttrName))
+    scheme = sdk::common::Scheme::SCHEME_CKKS;
+  else if (module->getAttr(kBGVSchemeAttrName))
+    scheme = sdk::common::Scheme::SCHEME_BGV;
+  else {
+    emitError(op.getLoc(), "Missing or unknown scheme attribute on module");
+    return failure();
+  }
+  return emitOpHelper("sub", scheme, op.getResult(),
+                      {op.getLhs(), op.getRhs()});
 }
 
 LogicalResult HeraclesSDKEmitter::printOperation(lwe::RMulOp op) {
@@ -343,8 +358,22 @@ LogicalResult HeraclesSDKEmitter::printOperation(lwe::RMulOp op) {
 }
 
 LogicalResult HeraclesSDKEmitter::emitOperation(lwe::RMulOp op) {
-  assert(false);
-  throw std::logic_error("Not yet implemented.");  // FIXME: implement
+  auto module = op->getParentOfType<ModuleOp>();
+  sdk::common::Scheme scheme;
+  if (module->getAttr(kCKKSSchemeAttrName))
+    scheme = sdk::common::Scheme::SCHEME_CKKS;
+  else if (module->getAttr(kBGVSchemeAttrName))
+    scheme = sdk::common::Scheme::SCHEME_BGV;
+  else {
+    emitError(op.getLoc(), "Missing or unknown scheme attribute on module");
+    return failure();
+  }
+  if (op.getLhs() == op.getRhs()) {
+    return emitOpHelper("square", scheme, op.getResult(), {op.getLhs()});
+  }
+
+  return emitOpHelper("mul", scheme, op.getResult(),
+                      {op.getLhs(), op.getRhs()});
 }
 
 LogicalResult HeraclesSDKEmitter::printOperation(bgv::AddOp op) {
