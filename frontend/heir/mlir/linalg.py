@@ -3,6 +3,19 @@ from numba.core.types import Array
 from numba.core.errors import TypingError
 
 
+def mlir_op(op_name):
+  """
+  Decorator to register a function as an MLIR operation.
+  """
+
+  def decorator(func):
+    func.mlir_op_name = op_name
+    return func
+
+  return decorator
+
+
+@mlir_op("linalg.matmul")
 def matmul(a, b):
   """
   Perform matrix multiplication of two matrices a and b.

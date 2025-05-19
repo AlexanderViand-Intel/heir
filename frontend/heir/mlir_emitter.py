@@ -507,11 +507,34 @@ class TextualMlirEmitter:
           )
           return f"{target_ssa} = {cast}"
         else:
-          raise InternalCompilerError("Call to unknown function " + name)
+          raise InternalCompilerError(
+              f"Call to unknown function {name} ({global_})"
+          )
       case ir.Expr(op="cast"):
         # not sure what to do here. maybe will be needed for type conversions
         # when interfacing with C
         self.forward_name(from_var=assign.target, to_var=assign.value.value)
+        return ""
+      case ir.Expr(op="getattr"):
+        if not str(assign.value.value) in self.globals_map.keys():
+          raise InternalCompilerError(
+              "Encountered getattr but no global map entry for"
+              f" {assign.value.value}"
+          )
+        receiver = self.globals_map[str(assign.value.value)]
+        print(
+            f"Found receiver {receiver} with value of type {type(receiver[1])}"
+        )
+        # FIXME: if it's a module, look up the attr we're trying to access somehow?
+        print(
+            f"encountered getattr and adding ({assign.value.attr},"
+            f" {assign.value.value}) to the globals map at key"
+            f" {assign.target.name}"
+        )
+        self.globals_map[assign.target.name] = (
+            assign.value.attr,
+            assign.value.value,
+        )
         return ""
       case ir.Const():
         # if we reassign a const, then forward the name
@@ -529,6 +552,11 @@ class TextualMlirEmitter:
           self.forward_name_to_id(assign.target, name.strip("%"))
         return const_str
       case ir.Global():
+        print(
+            f"encountered global and adding ({assign.value.name},"
+            f" {assign.value.value}) to the globals map at key"
+            f" {assign.target.name}"
+        )
         self.globals_map[assign.target.name] = (
             assign.value.name,
             assign.value.value,
@@ -538,7 +566,10 @@ class TextualMlirEmitter:
         # Sometimes we need this to be assigned?
         self.forward_name(from_var=assign.target, to_var=assign.value)
         return ""
-    raise InternalCompilerError(f"Unsupported IR Element: {assign}")
+    raise InternalCompilerError(
+        f"Unsupported Assignment: {assign}"
+        f" with RHS of type {type(assign.value)}"
+    )
 
   def emit_ext_if_needed(self, lhs, rhs):
     lhs_type = self.typemap.get(str(lhs))

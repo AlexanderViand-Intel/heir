@@ -1,8 +1,10 @@
 """Example of HEIR Python usage."""
 
 from heir import compile
-from heir.mlir import F32, I16, I64, Secret
+from heir.mlir import F32, I16, I64, Secret, Tensor
+import heir.mlir.linalg as linalg
 from heir.backends.cleartext import CleartextBackend
+import numpy as np
 
 # TODO (#1162): Also add the tensorflow-to-tosa-to-HEIR example in example.py, even it doesn't use the main Python frontend?
 
@@ -13,18 +15,18 @@ from heir.backends.cleartext import CleartextBackend
 def simple_example():
   print("Running simple example")
 
-  @compile()  # defaults to scheme="bgv", OpenFHE backend, and debug=False
-  def func(x: Secret[I16], y: Secret[I16]):
-    sum = x + y
-    diff = x - y
-    mul = x * y
-    expression = sum * diff + mul
-    deadcode = expression * mul
-    return expression
+  @compile(
+      debug=2
+  )  # defaults to scheme="bgv", OpenFHE backend, and debug=False
+  def func(x: Secret[Tensor[[1024], I16]], y: Secret[Tensor[[1024], I16]]):
+    return linalg.matmul(x, y)
+
+  a = np.array([i for i in range(1024)], dtype=np.int16)
+  b = np.array([2 * i for i in range(1024)], dtype=np.int16)
 
   print(
-      f"Expected result for `func`: {func.original(7,8)}, FHE result:"
-      f" {func(7,8)}"
+      f"Expected result for `func`: {func.original(a,b)}, FHE result:"
+      f" {func(a,b)}"
   )
 
 
