@@ -31,6 +31,30 @@ Path = pathlib.Path
 HEIRConfig = heir_cli_config.HEIRConfig
 
 
+# Print the SSA IR with type annotations in-line:
+def print_ssa_ir_with_types(ssa_ir: FunctionIR, typemap) -> str:
+  """Format the SSA IR with inline type annotations using the typemap."""
+  output_lines = [
+      f"SSA IR for {ssa_ir.func_id.func_name}({', '.join(ssa_ir.arg_names)}):"
+  ]
+  for idx, block in ssa_ir.blocks.items():
+    output_lines.append(f" Block {idx}:")
+    for stmt in block.body:
+      line = "  " + str(stmt)
+      target = getattr(stmt, "target", None)
+      if (
+          target is not None
+          and hasattr(target, "name")
+          and target.name in typemap
+      ):
+        # if line is longer than 80 characters, put type on new line
+        line += (
+            f"{'\n  ' if len(line)>80 else ''}  # type: {typemap[target.name]}"
+        )
+      output_lines.append(line)
+  return "\n".join(output_lines)
+
+
 def run_pipeline(
     function,
     heir_opt_options: list[str],
@@ -100,6 +124,9 @@ def run_pipeline(
             f" numba inference, expected {restype}, got {rettype}",
             ssa_ir.loc,
         )
+
+    if debug > 1:  # for internal debugging, set debug=2 in @compile
+      DebugMessage(print_ssa_ir_with_types(ssa_ir, typemap))
 
     # Emit Textual IR
     mlir_raw_textual = TextualMlirEmitter(
