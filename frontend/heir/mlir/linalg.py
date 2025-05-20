@@ -2,17 +2,7 @@ from numba.extending import type_callable
 from numba.core.types import Array
 from numba.core.errors import TypingError
 
-
-def mlir_op(op_name):
-  """
-  Decorator to register a function as an MLIR operation.
-  """
-
-  def decorator(func):
-    func.mlir_op_name = op_name
-    return func
-
-  return decorator
+from heir.mlir.types import mlir_op
 
 
 @mlir_op("linalg.matmul")

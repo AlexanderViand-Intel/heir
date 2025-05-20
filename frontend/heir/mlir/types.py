@@ -1,7 +1,7 @@
 """Defines Python type annotations for MLIR types."""
 
 from abc import ABC, abstractmethod
-from typing import Generic, Self, TypeVar, TypeVarTuple, get_args, get_origin
+from typing import Callable, Generic, Self, TypeVar, TypeVarTuple, get_args, get_origin
 from numba.core.types import Type as NumbaType
 from numba.core.types import boolean, int8, int16, int32, int64, float32, float64
 from numba.extending import typeof_impl, type_callable
@@ -10,7 +10,29 @@ T = TypeVar("T")
 Ts = TypeVarTuple("Ts")
 
 # List of all MLIR types we define here, for use in other parts of the compiler
-MLIR_TYPES = []  # populated via MLIRType's __init_subclass__
+MLIR_TYPES: list[str] = []  # populated via MLIRType's __init_subclass__
+
+MLIR_OPS: dict[Callable, str] = {}  # populated via @mlir_op decorator
+
+
+from heir.interfaces import InternalCompilerError
+
+
+def mlir_op(op_name):
+  """
+  Decorator to register a function as an MLIR operation.
+  """
+
+  def decorator(func):
+    if func in MLIR_OPS:
+      raise InternalCompilerError(
+          f"Function {func} is already registered as an MLIR operation, cannot"
+          " re-register."
+      )
+    MLIR_OPS[func] = op_name
+    return func
+
+  return decorator
 
 
 def check_for_value(a: "MLIRType"):

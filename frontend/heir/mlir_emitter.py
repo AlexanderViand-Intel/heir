@@ -12,7 +12,7 @@ from numba.core import bytecode
 from numba.core import controlflow
 from numba.core.types import Type as NumbaType
 
-from heir.mlir.types import MLIRType, MLIR_TYPES, I1, I8, I16, I32, I64, F32, F64
+from heir.mlir.types import MLIRType, MLIR_TYPES, I1, I8, I16, I32, I64, F32, F64, MLIR_OPS
 from heir.interfaces import CompilerError, DebugMessage, InternalCompilerError
 
 
@@ -475,7 +475,9 @@ class TextualMlirEmitter:
         func = assign.value.func
         # if assert fails, variable was undefined
         assert func.name in self.globals_map
+        print(f"Checking globals map for {func.name}")
         name, global_ = self.globals_map[func.name]
+        print(f"Found {name} with value {global_}")
         if name == "bool":
           # nothing to do, forward the name to the arg of bool()
           self.forward_name(from_var=assign.target, to_var=assign.value.args[0])
@@ -506,7 +508,19 @@ class TextualMlirEmitter:
               assign.loc,
           )
           return f"{target_ssa} = {cast}"
+        if global_ in MLIR_OPS:
+          return (
+              f"{self.get_or_create_name(assign.target)} = {MLIR_OPS[global_]}("
+              + ", ".join(
+                  [self.get_or_create_name(arg) for arg in assign.value.args]
+              )
+              + f") : {mlirType(self.typemap.get(assign.target.name))} {mlirLoc(assign.loc)}"
+          )
         else:
+          print(
+              f"Encountered unknown function {name} ({global_} which has the"
+              f" following attributes: {dir(global_)})"
+          )
           raise InternalCompilerError(
               f"Call to unknown function {name} ({global_})"
           )
@@ -525,16 +539,23 @@ class TextualMlirEmitter:
         print(
             f"Found receiver {receiver} with value of type {type(receiver[1])}"
         )
+        print(f"Checking if it has attribute {str(assign.value.attr)}")
+        if not hasattr(receiver[1], str(assign.value.attr)):
+          raise InternalCompilerError(
+              f"Encountered getattr for attribute {assign.value.attr} which"
+              f" does not exist in {receiver[1]}"
+          )
         # FIXME: if it's a module, look up the attr we're trying to access somehow?
         print(
-            f"encountered getattr and adding ({assign.value.attr},"
-            f" {assign.value.value}) to the globals map at key"
-            f" {assign.target.name}"
+            "encountered getattr and adding"
+            f" ({assign.value.attr}, {getattr(receiver[1],assign.value.attr)})"
+            f" to the globals map at key {assign.target.name}"
         )
         self.globals_map[assign.target.name] = (
             assign.value.attr,
-            assign.value.value,
+            getattr(receiver[1], assign.value.attr),
         )
+        print(f"Globals map is now: {self.globals_map}")
         return ""
       case ir.Const():
         # if we reassign a const, then forward the name
@@ -557,10 +578,12 @@ class TextualMlirEmitter:
             f" {assign.value.value}) to the globals map at key"
             f" {assign.target.name}"
         )
+
         self.globals_map[assign.target.name] = (
             assign.value.name,
             assign.value.value,
         )
+        print(f"Globals map is now: {self.globals_map}")
         return ""
       case ir.Var():
         # Sometimes we need this to be assigned?
